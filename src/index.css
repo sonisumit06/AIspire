@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: var(--sans);
+    background-color: #2B2118;
+    color: #FAF7F2;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #2B2118;
+  }
+}
+
+/* Custom scrollbar matching espresso & mocha palette */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #2B2118;
+}
+::-webkit-scrollbar-thumb {
+  background: #6B4F3A;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 183, 156, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9B79C;
+}
+
