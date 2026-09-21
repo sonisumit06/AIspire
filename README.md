@@ -1,4 +1,3 @@
-# React + TypeScript + Vite
 # AIspire — AI-Powered Student Career Counselling Platform
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
