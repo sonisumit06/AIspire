@@ -1,6 +1,5 @@
-# AIspire — AI-Powered Student Career Counselling Platform
+# AIspire — AI-Powered Student Career Guidance & Execution Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg?logo=react&style=flat-square)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg?logo=typescript&style=flat-square)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646cff.svg?logo=vite&style=flat-square)](https://vite.dev/)
@@ -9,73 +8,71 @@ This template provides a minimal setup to get React working in Vite with HMR and
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38b2ac.svg?logo=tailwind-css&style=flat-square)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-Currently, two official plugins are available:
-> **AIspire** is an intelligent, privacy-first career counselling platform engineered for high school and university students. It translates student problem-solving traits into actionable career paths through **explainable mathematical aptitude matching**, **10-step execution roadmaps**, **vetted educational resource discovery**, and an **enterprise-secured multi-tier AI Career Mentor**.
+> **AIspire** is an intelligent, privacy-first career guidance and roadmap execution platform designed for high school and university students. It translates innate problem-solving abilities and interests into actionable career paths through **explainable mathematical aptitude matching (85/15 ratio)**, **10-step interactive roadmaps**, an interactive **Journey Showcase**, a **curated examination & study hub**, and an **enterprise-secured, multi-tier AI Career Mentor**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 ---
 
-## React Compiler
+## 🎥 Walkthrough & Demo Video
+
+Watch the complete platform walkthrough demonstrating student onboarding, the 20-question cognitive assessment, dynamic 7D radar visualization, explainable recommendations, 10-step milestone roadmaps, resource discovery, and AI mentoring:
+
+👉 **[Download / Watch Walkthrough Video (AIspire demo.mp4)](./AIspire%20demo.mp4)**
+
+https://github.com/user-attachments/assets/AIspire%20demo.mp4
+
+*Direct link to the video file stored in the repository root: [`./AIspire demo.mp4`](./AIspire%20demo.mp4)*
+
+---
+
 ## 📑 Table of Contents
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-- [Executive Summary](#-executive-summary)
+- [Problem Statement & Solution](#-problem-statement--solution)
 - [System Architecture](#-system-architecture)
-- [Core Capabilities](#-core-capabilities)
-  - [1. Deterministic & Explainable Career Matching](#1-deterministic--explainable-career-matching)
-  - [2. 10-Step Interactive Career Roadmaps](#2-10-step-interactive-career-roadmaps)
-  - [3. Curated Resource Discovery Engine](#3-curated-resource-discovery-engine)
-  - [4. Multi-Tier Secure AI Career Mentor](#4-multi-tier-secure-ai-career-mentor)
-  - [5. Google Cloud Auth & Supabase State Persistence](#5-google-cloud-auth--supabase-state-persistence)
-  - [6. High-Contrast Accessible Design System](#6-high-contrast-accessible-design-system)
-- [Security Architecture & Multi-Tier AI Safety](#-security-architecture--multi-tier-ai-safety)
+- [Key Features & Innovations](#-key-features--innovations)
+  - [1. 20-Question 7D Cognitive Aptitude Engine](#1-20-question-7d-cognitive-aptitude-engine)
+  - [2. Explainable Mathematical Matching (85/15 Formula)](#2-explainable-mathematical-matching-8515-formula)
+  - [3. Interactive 10-Step Roadmaps & Journey Showcase](#3-interactive-10-step-roadmaps--journey-showcase)
+  - [4. Curated Study & Examination Resource Hub](#4-curated-study--examination-resource-hub)
+  - [5. Zero-Trust Multi-Tier AI Career Mentor](#5-zero-trust-multi-tier-ai-career-mentor)
+  - [6. Instant Guest Mode & Offline Resiliency](#6-instant-guest-mode--offline-resiliency)
+  - [7. Client-Side PDF Career Dossier Generation](#7-client-side-pdf-career-dossier-generation)
+- [Security & Multi-Tier AI Safety Architecture](#-security--multi-tier-ai-safety-architecture)
 - [Technology Stack](#-technology-stack)
-- [Local Development Quickstart](#-local-development-quickstart)
-- [Supabase Database & Edge Function Setup](#-supabase-database--edge-function-setup)
-- [Verification & Testing](#-verification--testing)
+- [Quickstart Guide for Hackathon Judges & Reviewers](#-quickstart-guide-for-hackathon-judges--reviewers)
+- [Automated Verification & Mathematical Proofs](#-automated-verification--mathematical-proofs)
 - [Repository Structure](#-repository-structure)
-- [Student Privacy & Compliance](#-student-privacy--compliance)
-- [Contributing](#-contributing)
+- [Privacy, Ethics & Student Safety](#-privacy-ethics--student-safety)
 - [License](#-license)
 
-## Expanding the Oxlint configuration
 ---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-## 🌟 Executive Summary
+## 💡 Problem Statement & Solution
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-Traditional career counselling relies either on generic, unverified questionnaires or opaque AI chatbots that hallucinate recommendations without justification. **AIspire bridges the gap between psychometric rigor and generative guidance:**
+### The Challenge
+1. **Opaque & Hallucinatory Career Advice:** Generic personality quizzes assign arbitrary job titles without mathematical grounding, while raw AI chatbots generate inconsistent, hallucinated suggestions that cannot explain *why* a career matches a student.
+2. **The "Now What?" Execution Gap:** Choosing a career is only step zero. Students lack structured, sequenced milestones and credible learning resources to turn an aspiration into an industry-ready portfolio.
+3. **Privacy & Credential Exposure:** Educational apps often expose third-party API keys directly in client bundles or leak student telemetry to public LLM training datasets.
 
-1. **Rigor Over Guesswork:** Assessment responses map deterministically to 7 cognitive dimensions with normalized scoring \([0, 100]\). Career recommendations use a weighted formula (\(85\%\) Aptitude + \(15\%\) Expressed Interest), producing auditable "Why This Career" evidence and constructive growth areas.
-2. **Zero-Trust AI Architecture:** Students never interface directly with AI models. All prompts pass through an authenticated Supabase Edge Function (`ai-mentor`) that verifies JWT bearer tokens, injects server-verified student profile data, enforces strict safety filters, and executes against Gemini 2.5 Flash without exposing credentials to the browser.
-3. **Action-Oriented Milestones:** Identifying a career path is only step zero. AIspire provides structured 10-step milestone roadmaps with tracking checklists, resource links, and interactive AI mentor support for every individual step.
+### The AIspire Solution
+* **Deterministic Psychometrics:** 20 scenario-based questions assess cognitive strengths across 7 distinct dimensions. Recommendations use a transparent formula ($85\%$ Aptitude + $15\%$ Expressed Interest) that outputs auditable "Strength Evidence" and constructive "Growth Area" feedback.
+* **10 Compounding Milestones:** Every career pathway features a 10-step curriculum (Foundations $\rightarrow$ Specialization $\rightarrow$ Capstone Launch) complete with deliverables, checklists, recommended tools, and the interactive **Journey Showcase**.
+* **Zero-Trust AI Gateway:** All mentoring queries run through an authenticated Supabase Edge Function (`ai-mentor`) enforcing cryptographic JWT verification, database rate-limiting, and server-managed system prompts without exposing API keys to the browser.
+* **Instant Evaluation Access:** Evaluators and students can test the entire platform instantly using **Instant Guest Mode**, with full offline support and seamless cloud synchronization upon sign-in.
 
 ---
 
 ## 🏛 System Architecture
 
-AIspire implements a zero-trust client architecture where the browser is treated as an untrusted frontend.
+AIspire implements a zero-trust architecture treating the browser as an untrusted frontend:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           Client (Browser)                              │
-│  React 19 + TypeScript + Vite + Tailwind CSS + Lucide Icons             │
+│       React 19 + TypeScript + Vite + Tailwind CSS v4 + Anime.js v4      │
+│     (State: Offline Local Storage Cache + Instant Guest Session)        │
 └────────────┬──────────────────────────────────────────────┬─────────────┘
              │ 1. Supabase OAuth (Google)                   │ 4. Prompt + Context
-             │    Session & Token Exchange                  │    (No API keys or system prompts)
+             │    JWT Bearer Token Exchange                 │    (Zero Client Keys/Prompts)
              ▼                                              ▼
 ┌────────────────────────────┐             ┌──────────────────────────────┐
 │       Supabase Auth        │             │    Supabase Edge Function    │
@@ -83,255 +80,209 @@ AIspire implements a zero-trust client architecture where the browser is treated
 └────────────┬───────────────┘             └──────────────┬───────────────┘
              │                                            │
              │ Authenticated queries                      │ 5. Verify Bearer JWT
-             │ with Row Level Security (RLS)              │ 6. Rate Limit (10 req/min, 3s cooldown)
-             ▼                                            │ 7. Query trusted profile & scores
-┌────────────────────────────────────────┐                │ 8. Enforce safety & input limits (<800 chars)
-│        Supabase PostgreSQL Database    │◄───────────────┤ 9. Construct server-owned prompt
+             │ with Row Level Security (RLS)              │ 6. Enforce Rate Limits (10 req/min)
+             ▼                                            │ 7. Query Verified Profile & Scores
+┌────────────────────────────────────────┐                │ 8. Enforce Student Safety Policies
+│        Supabase PostgreSQL Database    │◄───────────────┤ 9. Construct Server-Owned Prompt
 │                                        │                │
 │  • profiles        • assessments       │                ▼
 │  • roadmaps        • assessment_scores │         ┌──────────────────────┐
 │  • bookmarks       • ai_chat_history   │         │   Google Gemini API  │
 │  • ai_request_log                      │         │  (gemini-2.5-flash)  │
-└────────────────────────────────────────┘         │  Safety: BLOCK_LOW+  │
-                                                   └──────────────────────┘
+│                                        │         │  Safety: BLOCK_LOW+  │
+└────────────────────────────────────────┘         └──────────────────────┘
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
 ---
 
-## 🚀 Core Capabilities
+## 🚀 Key Features & Innovations
 
-### 1. Deterministic & Explainable Career Matching
+### 1. 20-Question 7D Cognitive Aptitude Engine
+Evaluates instinctive problem-solving across seven cognitive dimensions:
 
-The aptitude assessment evaluates **20 realistic scenario-based questions** spanning seven distinct cognitive domains:
-
-| Cognitive Dimension | Description | Typical Associated Fields |
+| Cognitive Dimension | Focus & Problem-Solving Trait | Target Career Pathways |
 | :--- | :--- | :--- |
-| **Analytical & Logic** | Pattern recognition, computational reasoning, deductive deduction | Data Science, Quantitative Finance |
-| **Creative & Design** | Visual aesthetics, lateral ideation, design empathy | UI/UX Design, Creative Technology |
-| **Technical & Engineering** | Systems architecture, debugging, algorithmic efficiency | AI/ML Engineering, Cyber Defense |
-| **Social & Healthcare** | Patient advocacy, biological systems, empathy | Clinical Medicine, Biotechnology |
-| **Management & Leadership**| Roadmapping, risk delegation, cross-functional vision | Product Management, Tech Founder |
-| **Research & Science** | Scientific method, empirical hypothesis testing, literature review | Genetics, Deep Tech Research |
-| **Communication & Media** | Rhetoric, stakeholder alignment, narrative storytelling | Product Marketing, Strategy |
+| **Analytical & Logic** | Algorithmic logic, pattern recognition, quantitative reasoning | Data Scientist, Quant Trader |
+| **Creative & Design** | Aesthetic judgment, spatial intuition, lateral thinking | Product Designer, Creative Technologist |
+| **Technical & Engineering** | Architecture, debugging, systems thinking, digital tools | AI & ML Engineer, Cybersecurity Architect |
+| **Social & Healthcare** | Empathy, human factors, patient well-being, biology | Physician, Clinical Innovator, Counselor |
+| **Leadership & Strategy** | Risk mitigation, team delegation, vision execution | Tech Entrepreneur, Product Manager |
+| **Research & Science** | Scientific method, empirical testing, exploratory literature | Biotech Scientist, AI Researcher |
+| **Communication & Media** | Articulate synthesis, persuasion, storytelling, narrative | Policy Strategist, Tech Evangelist |
 
-#### Mathematical Matching Engine
-- **Normalization:** Raw score per dimension normalized to \([0, 100]\):
-- **Aptitude Match:** Weighted compatibility score across the 7 cognitive dimensions:
-  $$\text{AptitudeMatch} = \frac{\sum_{d} \left(\text{StudentScore}[d] \times \text{CareerWeight}[d]\right)}{\sum_{d} \text{CareerWeight}[d]}$$
-- **Interest Alignment:** Explicit alignment between student declared interests/goals and career tags (\(0 \le \text{InterestAlignment} \le 100\)).
-- **Final Score:** Deterministic composite ensuring cognitive aptitude remains paramount:
-  $$\text{FinalMatch} = \text{Round}\left(0.85 \times \text{AptitudeMatch} + 0.15 \times \text{InterestAlignment}\right)$$
+### 2. Explainable Mathematical Matching (85/15 Formula)
+Recommendations are computed deterministically without black-box bias:
+1. **Normalized Dimension Score:**
+   $$\text{StudentScore}[d] = \frac{\text{EarnedWeight}[d]}{\text{MaxPossibleWeight}[d]} \times 100 \quad \in [0, 100]$$
+2. **Aptitude Compatibility Score:**
+   $$\text{AptitudeMatch} = \frac{\sum_{d} \left(\text{StudentScore}[d] \times \text{CareerWeight}[d]\right)}{\sum_{d} \text{CareerWeight}[d]}$$
+3. **Interest Alignment Score:** Computed by evaluating overlap between student-declared interests/goals and career tags ($0 \le \text{InterestAlignment} \le 100$).
+4. **Composite Recommendation Score:**
+   $$\text{FinalMatch} = \text{Round}\left(0.85 \times \text{AptitudeMatch} + 0.15 \times \text{InterestAlignment}\right)$$
 
-### 2. 10-Step Interactive Career Roadmaps
+### 3. Interactive 10-Step Roadmaps & Journey Showcase
+* **Three-Phase Progression:** Foundations (Steps 1–3) $\rightarrow$ Specialization & Projects (Steps 4–7) $\rightarrow$ Capstone & Industry Placement (Steps 8–10).
+* **Journey Showcase Component:** An interactive, canvas-animated route map giving students an intuitive visual representation of where they stand and what milestone to tackle next.
+* **Interactive Checklists & Tools:** Each step details milestone deliverables, recommended industry software/frameworks, and concrete action items.
 
-Every career pathway includes a comprehensive 10-step curriculum divided into three evolutionary phases:
-1. **Foundations (Steps 1–3):** Fundamental theory, core languages/tools, and academic prerequisites.
-2. **Specialization (Steps 4–7):** Intermediate domain frameworks, portfolio projects, and technical certifications.
-3. **Mastery & Industry Launch (Steps 8–10):** Capstone production systems, open-source leadership, interview prep, and industry placement.
+### 4. Curated Study & Examination Resource Hub
+* **Multi-Domain Categorization:** Covers entrance exams (SAT, ACT, GRE, GMAT, JEE, NEET, MCAT, GATE, UPSC) and academic disciplines.
+* **Pre-Indexed & Live Search:** Direct links to official syllabi, university lecture notes (MIT OCW, Stanford), past question papers, and curated YouTube video courses.
+* **Personalized Bookmarks:** Save and organize key revision materials with instant cloud and local persistence.
 
-Students can toggle completion checkboxes per step, track aggregate percentage progress in real-time, and launch targeted AI Mentor queries contextualized to their exact step.
+### 5. Zero-Trust Multi-Tier AI Career Mentor
+* **Server-Grounded Context:** Prompts receive verified profile data, assessment results, and active roadmap milestones queried directly by the backend Edge Function.
+* **Educational Guardrails:** Strictly redirects high-stakes legal, medical, or explicit adult content back to constructive academic exploration.
+* **Multi-Turn History:** Conversations sync with the database and can be cleared at any time with one click.
 
-### 3. Curated Resource Discovery Engine
+### 6. Instant Guest Mode & Offline Resiliency
+* **Zero Barrier for Evaluators:** Launch the app and click **"Continue as Guest"** to immediately test all features without entering credentials.
+* **Offline-First Storage:** Automatically preserves scores, answers, and roadmaps in local storage; smoothly syncs with Supabase once authenticated.
+* **Failsafe Startup Protection:** Built-in connection timeouts and parallel data hydration prevent the app from hanging even on slow or restricted networks.
 
-The resources module provides pre-indexed, verified study materials alongside live external web search queries:
-- **Google Search Integration:** Pre-configured academic search queries for syllabi, documentation, and textbooks.
-- **Notes & Cheatsheets:** Quick-reference cheat sheets, cheat sheets from MIT OpenCourseWare, Stanford Online, and developer docs.
-- **YouTube Playlists:** Verified lecture series from renowned educators (3Blue1Brown, freeCodeCamp, MIT OCW, StatQuest).
-- **Domain Whitelisting:** Highlights high-credibility educational domains while flagging user-bookmarked items for rapid access.
-
-### 4. Multi-Tier Secure AI Career Mentor
-
-The embedded AI Mentor provides contextual assistance across any view in the platform:
-- **Zero Hallucination of Student Context:** The client sends only the user query, active career ID, and current roadmap step. The server Edge Function queries the student's authentic assessment scores and target role from Supabase to provide customized mentoring.
-- **Multi-Turn Chat History:** Chat conversations persist securely in the user's `ai_chat_history` database table, synchronized across devices, with one-click clearing controls in both the drawer and Settings.
-
-### 5. Google Cloud Auth & Supabase State Persistence
-
-- **Identity:** Seamless Google OAuth login powered by Supabase Auth.
-- **Deterministic ID Management:** Profiles, assessments, and roadmaps are keyed to the immutable Supabase `user.id` UUID—never to volatile display names or emails.
-- **Sync Status Indicator:** Real-time visual indicator in the top navigation displays connection status (`Synced`, `Saving...`, `Offline`, `Sync Error`).
-- **Offline Resiliency:** When disconnected from the cloud, changes cache gracefully in local browser storage, syncing automatically upon reconnection.
-
-### 6. High-Contrast Accessible Design System
-
-- **Dual-Theme Token Engine:** Full support for dark mode (canvas `#0b0f19`) and light mode (canvas `#f8fafc`).
-- **WCAG AAA/AA Contrast Compliance:** High-contrast text palettes (`text-slate-900` on light cards, `text-slate-100` on dark cards).
-- **Solid CTA Protection:** Action buttons retain bright, readable text across both color themes without styling inversions.
-- **Interactive Particle Canvas:** Ambient, physics-driven particle canvas responds subtly to cursor movement, creating an immersive educational environment.
+### 7. Client-Side PDF Career Dossier Generation
+* One-click generation of a multi-page, publication-grade career report powered by `jspdf`.
+* Includes the 7D radar breakdown, top 3 recommended pathways, personalized strength evidence, growth focus areas, and milestone progress.
 
 ---
 
-## 🛡 Security Architecture & Multi-Tier AI Safety
-
-AIspire adheres to defense-in-depth security best practices:
+## 🛡 Security & Multi-Tier AI Safety Architecture
 
 ```
-[Student Request]
-       │
-       ▼
-[Layer 1: Frontend Input Sanitation]
-  • Max length capped at 800 characters
-  • Client validation against malicious injection
-       │
-       ▼
-[Layer 2: Edge Function Gateway Authentication]
-  • Strict HTTP Bearer JWT header validation via `supabase.auth.getUser()`
-  • Rejection of missing/invalid tokens with 401 Unauthorized
-       │
-       ▼
+[User Input]
+     │
+     ▼
+[Layer 1: Client Validation]
+  • Input capped at 1,000 characters
+  • Sanitization against control-character injections
+     │
+     ▼
+[Layer 2: Edge Function Gateway]
+  • Strict HTTP Bearer JWT validation via Supabase Auth
+  • Rejection of invalid tokens with 401 Unauthorized
+     │
+     ▼
 [Layer 3: Abuse Prevention & Rate Limiting]
-  • DB-backed request audit log (`ai_request_log`)
+  • Database-backed audit log (`ai_request_log`)
   • 3-second rapid-fire cooldown
-  • 10 requests / minute sliding window limit
-       │
-       ▼
+  • 10 requests / minute sliding window
+     │
+     ▼
 [Layer 4: Server-Side Context Isolation]
-  • Client CANNOT provide system instructions
-  • Edge function retrieves verified profile from Supabase
-  • Construct immutable educational persona prompt
-       │
-       ▼
-[Layer 5: Native AI Safety Thresholds]
-  • Gemini API `safetySettings` set to `BLOCK_LOW_AND_ABOVE`:
-    - HARM_CATEGORY_HATE_SPEECH
-    - HARM_CATEGORY_HARASSMENT
-    - HARM_CATEGORY_SEXUALLY_EXPLICIT
-    - HARM_CATEGORY_DANGEROUS_CONTENT
-  • Explicit handling of `finishReason === 'SAFETY'`
-       │
-       ▼
-[Sanitized Response Delivered to Client]
+  • Client cannot supply system prompts
+  • Edge function retrieves verified scores from Supabase
+  • Injects immutable educational mentor persona
+     │
+     ▼
+[Layer 5: Upstream AI Safety Thresholds]
+  • Gemini API safety settings configured to BLOCK_LOW_AND_ABOVE
+  • Finish-reason inspection handles content filtering gracefully
+     │
+     ▼
+[Sanitized Guidance Returned to User]
 ```
 
 ### PostgreSQL Row Level Security (RLS)
-
-All database tables implement granular PostgreSQL RLS policies enforcing tenant isolation:
-- `profiles`: Users can select/insert/update only their own row (`auth.uid() = id`).
-- `assessments`: Users can manage only their own assessments (`auth.uid() = user_id`).
-- `career_results`: Users can manage only their own career match rankings (`auth.uid() = user_id`).
-- `roadmap_progress`: Users can manage only their own milestone progress (`auth.uid() = user_id`).
-- `bookmarks`: Users can manage only their own saved resources (`auth.uid() = user_id`).
-- `ai_chat_history`: Users can read, write, and delete only their own messages (`auth.uid() = user_id`).
-- `ai_request_log`: Insertable and readable only by the request owner for rate calculations (`auth.uid() = user_id`).
+All database tables enforce strict tenant isolation (`auth.uid() = user_id`):
+* `profiles` · `assessments` · `assessment_scores` · `career_results` · `roadmap_progress` · `bookmarks` · `ai_chat_history` · `ai_request_log`
 
 ---
 
 ## 💻 Technology Stack
 
-| Domain | Technology | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Frontend Framework** | React | 19.0.0 | Component rendering & reactive application state |
-| **Language** | TypeScript | 5.7.2 | End-to-end static typing & compile-time correctness |
-| **Build Tooling** | Vite | 8.3.0 | Hot Module Replacement (HMR) & production asset bundling |
-| **Styling** | Tailwind CSS | 4.0.0 | Utility-first design tokens & responsive UI styling |
-| **Icons** | Lucide React | 1.16.0 | Semantic, accessible SVG interface iconography |
-| **Backend & Auth** | Supabase Cloud | 2.49.1 | Google OAuth authentication, PostgreSQL database, RLS |
-| **Serverless Compute** | Supabase Edge Functions | Deno | Authenticated server-side API & Gemini mediator |
-| **AI Model** | Google Gemini | 2.5-flash | High-speed, context-aware student career mentoring |
-| **Testing** | tsx / Custom Test Runner | 4.19.3 | Verification of deterministic matching algorithms |
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend Framework** | React 19 | UI rendering and reactive component state |
+| **Language** | TypeScript 5.7+ | Strict static typing and compile-time verification |
+| **Build & Dev Tool** | Vite 8.3 | Ultra-fast HMR and optimized production bundling |
+| **Styling** | Tailwind CSS v4 | Semantic utility tokens and responsive design |
+| **Motion & Dynamics** | Anime.js v4.5.0 | Physics-based spring curves and choreographed timelines |
+| **Icons** | Lucide React | Semantic interface iconography |
+| **Backend & Auth** | Supabase Cloud | Google OAuth 2.0, PostgreSQL database with RLS |
+| **Serverless Compute** | Supabase Edge Functions | Deno-powered authenticated AI gateway |
+| **AI Engine** | Google Gemini 2.5 Flash | High-speed, context-grounded student mentoring |
+| **Report Generation** | jsPDF | In-browser multi-page PDF career dossier generation |
+| **Code Quality** | Oxlint & TypeScript | Zero-warning linting and static analysis |
 
 ---
 
-## ⚡ Local Development Quickstart
+## ⚡ Quickstart Guide for Hackathon Judges & Reviewers
 
-### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
-- **Supabase Account**: [https://supabase.com](https://supabase.com) (Free Tier)
-- **Google Cloud Console**: For OAuth 2.0 Client Credentials
-- **Google AI Studio Key**: For Gemini 2.5 Flash
+You can run AIspire locally in under **2 minutes**:
 
-### 1. Clone & Install Dependencies
+### 1. Clone & Install
 ```bash
-git clone https://github.com/your-org/aispire.git
-cd aispire
+git clone https://github.com/sonisumit06/AIspire.git
+cd AIspire
 npm install
 ```
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-Fill in your environment values:
-```ini
-# Supabase Public Configuration (Safe for client bundle)
-VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
-
-# Local Dev AI Fallback (Optional — Edge Function is used in production)
-# In production, GEMINI_API_KEY is stored ONLY in Supabase Edge Function Secrets!
-GEMINI_API_KEY=AIzaSy...
-```
-
-### 3. Launch Development Server
+### 2. Launch Local Dev Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+
+> 💡 **Instant Evaluation Tip:** On the welcome screen, click **"Continue as Guest (Instant Access)"**. You can immediately take the 20-question test, inspect the 7D Cognitive Radar, explore the 10-step roadmaps & Journey Showcase, and download a PDF report—no cloud configuration required!
+
+### 3. Optional: Cloud Sync & Edge Function Setup
+To enable Google OAuth and cloud synchronization:
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Execute [`supabase/schema.sql`](supabase/schema.sql) in your Supabase SQL Editor.
+3. Add your Supabase URL and Anon Key in `.env`:
+   ```ini
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+4. Deploy the Edge Function with your Gemini API key:
+   ```bash
+   npx supabase secrets set GEMINI_API_KEY=your-key
+   npx supabase functions deploy ai-mentor --no-verify-jwt
+   ```
 
 ---
 
-## 🗄 Supabase Database & Edge Function Setup
+## 🧪 Automated Verification & Mathematical Proofs
 
-### 1. Run Database Migrations
-1. Open your Supabase Project Dashboard.
-2. Navigate to the **SQL Editor**.
-3. Paste and run the entire contents of [`supabase/schema.sql`](supabase/schema.sql).
-   - This creates all 7 tables with foreign keys, composite indexes, and strict Row Level Security policies.
+AIspire includes automated test suites verifying mathematical accuracy, safety guards, and PDF rendering:
 
-### 2. Configure Google OAuth in Supabase
-1. In the Supabase Dashboard, navigate to **Authentication > Providers > Google**.
-2. Enable the Google provider.
-3. Add your **Client ID** and **Client Secret** obtained from Google Cloud Console.
-4. Copy the Supabase **Callback URL** (e.g. `https://<ref>.supabase.co/auth/v1/callback`) and add it to Authorized Redirect URIs in your Google Cloud Console project.
-
-### 3. Deploy the AI Mentor Edge Function
-Using the Supabase CLI:
-```bash
-# Log in to Supabase CLI
-npx supabase login
-
-# Link to your Supabase project
-npx supabase link --project-ref your-project-ref
-
-# Set Gemini API Key as a server-side secret (NEVER exposed to frontend)
-npx supabase secrets set GEMINI_API_KEY=your_gemini_api_key_here
-
-# Deploy the edge function
-npx supabase functions deploy ai-mentor --no-verify-jwt
-```
-> **Note:** The `--no-verify-jwt` flag allows our Edge Function code to handle JWT verification directly with `supabase.auth.getUser()`, giving granular control over error responses and CORS preflight requests.
-
----
-
-## 🧪 Verification & Testing
-
-AIspire includes automated test suites and static analysis verification:
-
-### Mathematical Matching Verification
-Verify that the 7-dimensional scoring normalization, weighting formula, strength evidence generation, and career ranking math behave deterministically:
 ```bash
 npm test
 ```
-*Expected Output:*
-```
-🧪 Starting Verification Tests for AIspire Career Matcher...
-✅ Test 1 Passed: Empty answers correctly normalized to [0, 100] without NaN.
-✅ Test 2 Passed: 20-question answers normalized and clamped properly.
-✅ Test 3-5 Passed: Exact weighting formula (85% aptitude + 15% interest) functioning.
-✅ Test 6 Passed: Dynamic strength evidence generated successfully.
-✅ Test 7 Passed: Growth area calculated constructively based on GrowthPriority formula.
-✅ Test 8 Passed: Careers strictly ranked by descending FinalMatch.
-🎉 ALL CAREER MATCHER MATHEMATICAL TESTS PASSED SUCCESSFULLY!
+
+### Verified Test Assertions:
+```text
+🧪 Starting Comprehensive Verification Suite for AIspire Career Matcher...
+✅ Test 1: Empty Answers Dimension Normalization (No NaN)
+✅ Test 2: Full 20-Question Mapping & Boundary Clamping
+✅ Test 3: Exact Aptitude Arithmetic Proof
+✅ Test 4: Interest Alignment Score Bounds [0, 100]
+✅ Test 5: Composite 85/15 Formula Verification
+✅ Test 6: Dynamic Strength Evidence Ranking
+✅ Test 7: Growth Area Prioritization Calculation
+✅ Test 8: Descending FinalMatch Career Sorting
+✅ Test 9: Boundary Conditions (All 0s & All 100s)
+✅ Test 10: Graceful Handling of Undefined Profile Data
+🎉 ALL 10 CAREER MATCHER MATHEMATICAL PROOFS PASSED PERFECTLY!
+
+🛡️ Starting Security, Safety, Rate-Limit & Persistence Verification Suite...
+✅ Test 1: Explicit Adult Content Refusal
+✅ Test 2: High-Stakes Legal/Medical Scope Redirections
+✅ Test 3: Zero Client System Instruction Trust
+✅ Test 4: 3-Second Cooldown & 10 req/min Rate Limiting
+✅ Test 5: Assessment Session Resumption
+✅ Test 6: Complete User Data Isolation on Logout
+🎉 ALL SECURITY, SAFETY, RATE-LIMIT & PERSISTENCE TESTS PASSED!
+
+📄 Testing PDF Career Report Generator...
+✅ PDF Career Report generation test passed (4 pages generated)!
 ```
 
-### Production Build & Type Check
-Verify that all TypeScript declarations, JSX modules, and Vite bundles compile without warnings or errors:
+### Production Build Verification
 ```bash
 npm run build
 ```
+*Compiles with zero TypeScript errors or linter warnings.*
 
 ---
 
@@ -339,100 +290,86 @@ npm run build
 
 ```
 AIspire/
-├── .env.example                 # Clean environment variable blueprint
-├── .gitignore                   # Excludes node_modules, dist, and local .env
+├── AIspire demo.mp4             # Full platform walkthrough video
+├── .env.example                 # Environment variable template
+├── .gitignore                   # Excludes node_modules, dist, and secrets
 ├── LICENSE                      # MIT Open Source License
-├── README.md                    # Platform documentation (this file)
-├── SECURITY.md                  # Vulnerability disclosure & security policy
-├── CONTRIBUTING.md              # Contribution guidelines & code standards
-├── PRIVACY.md                   # Student privacy policy & data practices
+├── README.md                    # Project documentation & Hackathon showcase
+├── SECURITY.md                  # Security policies and vulnerability reporting
+├── CONTRIBUTING.md              # Guidelines for code contributions
+├── PRIVACY.md                   # Student privacy policies
 ├── TERMS.md                     # Platform terms of service
-├── index.html                   # HTML entry point with metadata & favicon
-├── package.json                 # Project dependencies and script definitions
-├── tsconfig.json                # TypeScript root configuration
-├── vite.config.ts               # Vite configuration with local AI dev proxy
+├── index.html                   # Application HTML shell
+├── package.json                 # Dependency specifications & scripts
+├── tsconfig.json                # TypeScript compiler configuration
+├── vite.config.ts               # Vite configuration
 │
-├── docs/                        # In-depth architectural documentation
-│   ├── architecture.md          # End-to-end system architecture & flows
-│   ├── security.md              # Threat model & multi-tier safety specs
-│   ├── database.md              # PostgreSQL schema, ERD, and RLS specs
-│   └── deployment.md            # Production deployment & CI/CD guide
+├── docs/                        # In-depth engineering specifications
+│   ├── architecture.md          # Comprehensive architectural specs
+│   ├── security.md              # Threat model & safety thresholds
+│   ├── database.md              # PostgreSQL schema & RLS policies
+│   └── deployment.md            # Production deployment guide
 │
-├── Logo/                        # Brand design assets
-│   └── App Logo.png             # Official AIspire high-resolution logo
-│
-├── public/                      # Static assets distributed with bundle
-│   └── logo.png                 # Browser favicon & navigation icon
+├── Logo/                        # Official high-resolution brand assets
+├── public/                      # Static web assets & favicons
 │
 ├── src/                         # Application source code
-│   ├── main.tsx                 # React application mounting entry
-│   ├── App.tsx                  # Root state orchestration & view router
-│   ├── App.css                  # Semantic tokens & high-contrast styling
-│   ├── index.css                # Base Tailwind imports & scrollbar styles
+│   ├── main.tsx                 # Mounting entry point with ErrorBoundary
+│   ├── App.tsx                  # Root state orchestration & view management
+│   ├── App.css                  # Semantic design tokens & responsive styles
 │   │
-│   ├── types/                   # TypeScript interface definitions
-│   │   ├── index.ts             # Profile, Questions, Careers, Roadmaps
-│   │   └── database.ts          # Supabase table definitions
+│   ├── components/              # Modular UI view components
+│   │   ├── Navbar.tsx           # Global navigation with cloud sync status
+│   │   ├── LoginView.tsx        # Authentication & instant guest access
+│   │   ├── ProfileOnboardingView.tsx # Student background & aspirations
+│   │   ├── DashboardView.tsx    # Command center & next milestone highlight
+│   │   ├── AptitudeTestView.tsx # 20-question cognitive assessment
+│   │   ├── ResultsView.tsx      # Explainable match breakdown & growth areas
+│   │   ├── RoadmapView.tsx      # 10-step career progression tracker
+│   │   ├── JourneyShowcase.tsx  # Animated visual learning route showcase
+│   │   ├── ResourcesView.tsx    # Curated study links & exam prep hub
+│   │   ├── SettingsView.tsx     # Theme, account, sync status & safety info
+│   │   ├── AIChatDrawer.tsx     # Sliding contextual AI mentor chat drawer
+│   │   ├── InteractiveRadarSignature.tsx # Animated SVG 7D cognitive radar
+│   │   ├── InteractiveParticles.tsx # Ambient physics-based canvas background
+│   │   └── ErrorBoundary.tsx    # Crash-resilient error recovery component
 │   │
-│   ├── context/                 # Application state management
-│   │   └── AppContext.tsx       # Global user profile, sync status & auth
+│   ├── context/
+│   │   └── AppContext.tsx       # Global application state & cloud sync
 │   │
-│   ├── services/                # Business logic & API communication
-│   │   ├── supabaseClient.ts    # Initialized Supabase client instance
+│   ├── services/                # Business logic, math & cloud services
+│   │   ├── careerMatcher.ts     # Deterministic 7D scoring & ranking math
 │   │   ├── geminiService.ts     # Client invoker for Edge Function
-│   │   ├── careerMatcher.ts     # Deterministic 7D scoring & ranking engine
-│   │   ├── assessmentService.ts # Persistence for assessment responses & scores
-│   │   ├── roadmapService.ts    # Persistence for 10-step progress
-│   │   ├── bookmarkService.ts   # Persistence for resource bookmarks
-│   │   ├── chatService.ts       # Persistence for multi-turn AI chat history
-│   │   └── verify-matcher.ts    # Mathematical verification test runner
+│   │   ├── pdfReportService.ts  # Multi-page PDF career dossier generator
+│   │   ├── authService.ts       # Supabase OAuth with connection pre-flight
+│   │   ├── chatService.ts       # Chat persistence & session invalidation
+│   │   ├── assessmentService.ts # Assessment state resumption
+│   │   ├── roadmapService.ts    # Milestone progress tracking
+│   │   └── bookmarkService.ts   # Resource bookmark persistence
 │   │
-│   ├── data/                    # Seed data & educational curricula
+│   ├── data/                    # Educational seed data
 │   │   ├── questions.ts         # 20 scenario-based aptitude questions
-│   │   ├── careers.ts           # 8 core career paths with benchmarks & roadmaps
-│   │   └── resources.ts         # Curated directory of study links
+│   │   ├── careers.ts           # 8 core career paths & 10-step roadmaps
+│   │   └── resources.ts         # Pre-indexed study materials & exam guides
 │   │
-│   └── components/              # Modular UI components
-│       ├── Navbar.tsx           # Global navigation with theme & sync indicators
-│       ├── LoginView.tsx        # Google OAuth sign-in & educational value prop
-│       ├── ProfileOnboardingView.tsx # Student background & target interests
-│       ├── DashboardView.tsx    # Home hub showing assessment status & progress
-│       ├── AptitudeTestView.tsx # Interactive 20-question step assessment
-│       ├── ResultsView.tsx      # Explainable match breakdown & growth areas
-│       ├── RoadmapView.tsx      # 10-step career progression with checklist
-│       ├── ResourcesView.tsx    # Curated study resources & internet search
-│       ├── SettingsView.tsx     # Theme, account, sync status & about info
-│       ├── AIChatDrawer.tsx     # Sliding contextual AI mentor chat panel
-│       └── InteractiveParticles.tsx # Ambient physics-based canvas background
+│   └── utils/                   # Animation & motion utilities
+│       ├── motion.ts            # Anime.js v4 easing, springs & choreography
+│       └── animations.ts        # Reusable entrance & transition helpers
 │
-└── supabase/                    # Supabase backend definitions
-    ├── schema.sql               # Complete PostgreSQL schema with RLS & indexes
-    └── functions/               # Supabase Deno Edge Functions
-        └── ai-mentor/           # Enterprise AI mentor gateway
-            └── index.ts         # JWT auth, rate limits, safety & Gemini call
+└── supabase/                    # Backend database & serverless compute
+    ├── schema.sql               # PostgreSQL schema with full RLS policies
+    └── functions/
+        └── ai-mentor/           # Deno Edge Function with JWT auth & Gemini
+            └── index.ts
 ```
 
 ---
 
-## 🔒 Student Privacy & Compliance
+## 🔒 Privacy, Ethics & Student Safety
 
-AIspire is built from the ground up to respect student data privacy:
-- **No Direct Model Training:** Student assessment responses and conversational messages are processed through transient API calls and are **never** used to train public machine learning models.
-- **COPPA & FERPA Mindful Design:** AIspire stores only minimal required profile metadata (display name, education level, field of interest). No sensitive PII (Social Security numbers, birthdates, financial records, or home addresses) is ever collected or stored.
-- **User Ownership:** Students have unconditional access to clear their AI chat history or delete their entire account directly from the Settings screen.
-
----
-
-## 🤝 Contributing
-
-Contributions to AIspire are welcomed. Please review our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](SECURITY.md) before submitting pull requests.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Verify tests pass (`npm test && npm run build`)
-5. Push to the branch (`git push origin feature/AmazingFeature`)
-6. Open a Pull Request
+* **Zero Public Model Training:** Student responses and messages are processed via transient API calls and are **never** utilized to train public machine learning models.
+* **COPPA & FERPA Mindful:** No sensitive PII (Social Security numbers, birthdates, phone numbers, or physical addresses) is ever requested or stored.
+* **Complete Student Ownership:** One-click controls in Settings allow students to clear their AI conversation history or reset their local cache immediately.
 
 ---
 
