@@ -25,9 +25,9 @@ const MainContent: React.FC = () => {
     }
   }, [currentView]);
 
-  if (authLoading) {
+  if (authLoading && !userProfile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#2B2118] text-[#FAF7F2]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#2B2118] text-[#FAF7F2] p-4 text-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] p-2 shadow-2xl flex items-center justify-center animate-pulse border border-[#6B523E]">
             <img src="/logo.png" alt="AIspire" className="w-full h-full object-contain" />

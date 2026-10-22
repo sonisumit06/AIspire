@@ -23,7 +23,6 @@ export function useReducedMotion(): boolean {
       setReduced(e.matches);
     };
 
-    setReduced(mediaQuery.matches);
     mediaQuery.addEventListener('change', onChange);
     return () => mediaQuery.removeEventListener('change', onChange);
   }, []);
@@ -39,14 +38,15 @@ export function useCardTilt<T extends HTMLElement = HTMLDivElement>(
   options: { maxTilt?: number; spotlight?: boolean } = {}
 ) {
   const ref = useRef<T | null>(null);
+  const { maxTilt, spotlight } = options;
 
   useEffect(() => {
     const el = ref.current;
     if (!el || isTouchDevice() || isReducedMotion()) return;
 
-    const cleanup = setupCard3DTilt(el, options);
+    const cleanup = setupCard3DTilt(el, { maxTilt, spotlight });
     return cleanup;
-  }, [options.maxTilt, options.spotlight]);
+  }, [maxTilt, spotlight]);
 
   return ref;
 }

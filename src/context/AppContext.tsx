@@ -121,9 +121,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // App View state
-  const [currentView, setCurrentView] = useState<AppView>('login');
-
   // User Profile
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     try {
@@ -132,6 +129,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       return null;
     }
+  });
+
+  // App View state: automatically resume dashboard or onboarding if profile exists
+  const [currentView, setCurrentView] = useState<AppView>(() => {
+    try {
+      const saved = localStorage.getItem(LS_PROFILE);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.isProfileComplete) return 'dashboard';
+        if (parsed) return 'onboarding';
+      }
+    } catch {
+      // fallback
+    }
+    return 'login';
   });
 
   // Assessment State
@@ -256,116 +268,165 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const [isAiTyping, setIsAiTyping] = useState(false);
-  const activeChatSessionRef = useRef<number>(Date.now());
+  const activeChatSessionRef = useRef<number>(0);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     DEFAULT_WELCOME_MESSAGE,
   ]);
 
-  // Load cloud data for authenticated user
+  // Load cloud data for authenticated user (Parallelized & Timeout Protected)
   const loadCloudUserData = useCallback(async (user: User) => {
     try {
-      // 1. Fetch Profile
-      const profile = await fetchProfile(user.id);
-      if (!profile || !profile.education_level) {
-        // Needs onboarding
-        const initialProfile: UserProfile = {
+      // 4-second timeout race prevents app from hanging if network stalls
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Cloud load timeout')), 4000)
+      );
+
+      const fetchAllPromise = (async () => {
+        // 1. Fetch Profile
+        const profile = await fetchProfile(user.id);
+        if (!profile || !profile.education_level) {
+          // Needs onboarding
+          const initialProfile: UserProfile = {
+            id: user.id,
+            name:
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              user.email?.split('@')[0] ||
+              'Student',
+            email: user.email || '',
+            avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+            educationLevel: '',
+            interests: [],
+            targetGoals: '',
+            isProfileComplete: false,
+          };
+          setUserProfile(initialProfile);
+          setCurrentView('onboarding');
+          return;
+        }
+
+        // Existing complete profile
+        const loadedProfile: UserProfile = {
           id: user.id,
-          name:
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            user.email?.split('@')[0] ||
-            'Student',
-          email: user.email || '',
-          avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture,
-          educationLevel: '',
-          interests: [],
-          targetGoals: '',
-          isProfileComplete: false,
+          name: profile.name,
+          email: profile.email,
+          avatarUrl: profile.avatar_url || user.user_metadata?.avatar_url,
+          educationLevel: profile.education_level,
+          interests: profile.interests || [],
+          targetGoals: profile.target_goals || '',
+          isProfileComplete: true,
         };
-        setUserProfile(initialProfile);
-        setCurrentView('onboarding');
-        return;
-      }
 
-      // Existing complete profile
-      const loadedProfile: UserProfile = {
-        id: user.id,
-        name: profile.name,
-        email: profile.email,
-        avatarUrl: profile.avatar_url || user.user_metadata?.avatar_url,
-        educationLevel: profile.education_level,
-        interests: profile.interests || [],
-        targetGoals: profile.target_goals || '',
-        isProfileComplete: true,
-      };
+        setUserProfile(loadedProfile);
+        localStorage.setItem(LS_PROFILE, JSON.stringify(loadedProfile));
 
-      setUserProfile(loadedProfile);
-      localStorage.setItem(LS_PROFILE, JSON.stringify(loadedProfile));
+        // 2-5. Parallel fetch remaining cloud data for sub-second startup
+        const isClearedInSession =
+          typeof sessionStorage !== 'undefined' &&
+          sessionStorage.getItem('aispire_chat_cleared_turn');
 
-      // 2. Fetch Latest Assessment & Scores
-      const { assessment, scores } = await fetchLatestAssessment(user.id);
-      if (assessment) {
-        setAnswers(assessment.answers || {});
-        localStorage.setItem(LS_ANSWERS, JSON.stringify(assessment.answers || {}));
-        setCurrentQuestionIndexState(assessment.current_question || 0);
-        localStorage.setItem(LS_QUESTION_IDX, String(assessment.current_question || 0));
+        const [assessmentRes, roadmapsRes, bookmarksRes, chatRes] = await Promise.allSettled([
+          fetchLatestAssessment(user.id),
+          fetchRoadmapProgress(user.id),
+          fetchBookmarks(user.id),
+          !isClearedInSession ? fetchChatHistory(user.id) : Promise.resolve({ messages: [] }),
+        ]);
 
-        if (scores) {
-          setDimensionScores(scores);
-          localStorage.setItem(LS_SCORES, JSON.stringify(scores));
+        if (assessmentRes.status === 'fulfilled' && assessmentRes.value.assessment) {
+          const { assessment, scores } = assessmentRes.value;
+          setAnswers(assessment.answers || {});
+          localStorage.setItem(LS_ANSWERS, JSON.stringify(assessment.answers || {}));
+          setCurrentQuestionIndexState(assessment.current_question || 0);
+          localStorage.setItem(LS_QUESTION_IDX, String(assessment.current_question || 0));
+
+          if (scores) {
+            setDimensionScores(scores);
+            localStorage.setItem(LS_SCORES, JSON.stringify(scores));
+          }
         }
-      }
 
-      // 3. Fetch Roadmap Progress
-      const { progress: roadmaps } = await fetchRoadmapProgress(user.id);
-      setCompletedSteps(roadmaps);
-      localStorage.setItem(LS_COMPLETED_STEPS, JSON.stringify(roadmaps));
-
-      // 4. Fetch Bookmarks
-      const { bookmarks: bmarks } = await fetchBookmarks(user.id);
-      setBookmarks(bmarks);
-      localStorage.setItem(LS_BOOKMARKS, JSON.stringify(bmarks));
-
-      // 5. Fetch Chat History (only if not explicitly cleared in this browser session)
-      const isClearedInSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('aispire_chat_cleared_turn');
-      if (!isClearedInSession) {
-        const { messages: historyMessages } = await fetchChatHistory(user.id);
-        if (historyMessages && historyMessages.length > 0) {
-          setChatMessages(historyMessages);
+        if (roadmapsRes.status === 'fulfilled') {
+          setCompletedSteps(roadmapsRes.value.progress);
+          localStorage.setItem(LS_COMPLETED_STEPS, JSON.stringify(roadmapsRes.value.progress));
         }
-      }
 
-      setSyncStatus('synced');
-      setLastSyncError(null);
+        if (bookmarksRes.status === 'fulfilled') {
+          setBookmarks(bookmarksRes.value.bookmarks);
+          localStorage.setItem(LS_BOOKMARKS, JSON.stringify(bookmarksRes.value.bookmarks));
+        }
 
-      // Direct returning user to Dashboard
-      setCurrentView('dashboard');
+        if (chatRes.status === 'fulfilled' && chatRes.value.messages && chatRes.value.messages.length > 0) {
+          setChatMessages(chatRes.value.messages);
+        }
+
+        setSyncStatus('synced');
+        setLastSyncError(null);
+        setCurrentView('dashboard');
+      })();
+
+      await Promise.race([fetchAllPromise, timeoutPromise]);
     } catch (err) {
-      console.warn('Error loading cloud user data:', err);
-      setSyncStatus('error');
-      setLastSyncError('Failed to load cloud profile data');
+      console.warn('Notice loading cloud user data (falling back to local cache):', err);
+      setSyncStatus('offline');
+      setLastSyncError('Operating in local cache mode');
       setCurrentView('dashboard');
     }
   }, []);
 
-  // Initialize Auth & Subscribe to Supabase Auth State Changes
+  // Initialize Auth & Subscribe to Supabase Auth State Changes with Failsafe Timeout
   useEffect(() => {
     let isMounted = true;
 
     async function initAuth() {
       setAuthLoading(true);
       try {
-        const { user } = await getAuthSession();
+        // Enforce 3-second timeout for session check so app never hangs
+        const sessionPromise = getAuthSession();
+        const timeoutPromise = new Promise<{ session: null; user: null }>((resolve) =>
+          setTimeout(() => resolve({ session: null, user: null }), 3000)
+        );
+        const { user } = await Promise.race([sessionPromise, timeoutPromise]);
+
         if (isMounted) {
           setAuthUser(user);
           if (user) {
             await loadCloudUserData(user);
           } else {
+            // Check if we have an existing guest/local profile in localStorage
+            const savedProfile = localStorage.getItem(LS_PROFILE);
+            if (savedProfile) {
+              try {
+                const parsed = JSON.parse(savedProfile);
+                if (parsed && typeof parsed === 'object') {
+                  setUserProfile(parsed);
+                  setSyncStatus('offline');
+                  setLastSyncError(null);
+                  setCurrentView(parsed.isProfileComplete ? 'dashboard' : 'onboarding');
+                  return;
+                }
+              } catch {
+                // proceed to login
+              }
+            }
             setCurrentView('login');
           }
         }
       } catch (err) {
-        console.warn('Auth initialization error:', err);
+        console.warn('Auth initialization notice:', err);
+        const savedProfile = localStorage.getItem(LS_PROFILE);
+        if (savedProfile) {
+          try {
+            const parsed = JSON.parse(savedProfile);
+            if (parsed && typeof parsed === 'object') {
+              setUserProfile(parsed);
+              setCurrentView(parsed.isProfileComplete ? 'dashboard' : 'onboarding');
+            }
+          } catch {
+            setCurrentView('login');
+          }
+        } else {
+          setCurrentView('login');
+        }
       } finally {
         if (isMounted) setAuthLoading(false);
       }
@@ -379,8 +440,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (user) {
           loadCloudUserData(user);
         } else {
-          setUserProfile(null);
-          setCurrentView('login');
+          // Do NOT wipe userProfile if it is a local guest session
+          const saved = localStorage.getItem(LS_PROFILE);
+          let isGuest = false;
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              if (parsed?.id && typeof parsed.id === 'string' && parsed.id.startsWith('guest-')) {
+                isGuest = true;
+              }
+            } catch {
+              // ignore
+            }
+          }
+
+          if (!isGuest) {
+            setUserProfile(null);
+            setCurrentView('login');
+          }
         }
       }
     });

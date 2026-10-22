@@ -22,6 +22,13 @@ export const InteractiveParticles: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
@@ -181,7 +188,7 @@ export const InteractiveParticles: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none -z-0 w-full h-full transition-opacity duration-500"
+      className="fixed inset-0 pointer-events-none z-0 w-full h-full transition-opacity duration-500"
       style={{ opacity: 0.9 }}
       aria-hidden="true"
     />

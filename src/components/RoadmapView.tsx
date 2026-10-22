@@ -21,6 +21,7 @@ import { generateCareerReportPdf } from '../services/pdfReportService';
 import type { RoadmapStep } from '../types';
 import { animateEntrance } from '../utils/animations';
 import { useButtonMotion } from '../hooks/useMotion';
+import { JourneyShowcase } from './JourneyShowcase';
 
 export const RoadmapView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,7 @@ export const RoadmapView: React.FC = () => {
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(1);
+  const [activeRoadmapIndex, setActiveRoadmapIndex] = useState(0);
 
   const career = selectedCareer || CAREER_ROLES[0];
   const activeCompleted = completedSteps[career.id] || [];
@@ -54,10 +56,21 @@ export const RoadmapView: React.FC = () => {
     }
   }, [career.id]);
 
-  // Identify next unfinished step ("Where am I / What should I do next?")
+  useEffect(() => {
+    const targetIndex = Math.min(
+      Math.max(0, activeCompleted.length < 10 ? activeCompleted.length : 9),
+      career.roadmap.length - 1,
+    );
+    setActiveRoadmapIndex(targetIndex);
+  }, [career.id, activeCompleted.length, career.roadmap.length]);
+
   const currentActiveStepNumber = activeCompleted.length < 10
     ? ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].find((s) => !activeCompleted.includes(s)) || 1)
     : 10;
+
+  useEffect(() => {
+    setExpandedStep(currentActiveStepNumber);
+  }, [currentActiveStepNumber]);
 
   const handleToggleStep = (stepNumber: number, event?: React.MouseEvent<HTMLElement>) => {
     if (event) handlePress(event);
@@ -101,9 +114,10 @@ export const RoadmapView: React.FC = () => {
     }
   };
 
+  const activeStep = career.roadmap[Math.min(activeRoadmapIndex, career.roadmap.length - 1)] ?? career.roadmap[0];
+
   return (
     <div ref={containerRef} className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 min-w-0">
-      {/* Header Banner & Career Selector */}
       <div className="roadmap-section bg-[#231A12] border border-[#6B523E] rounded-2xl p-6 sm:p-7 shadow-2xl space-y-6 uiverse-card relative overflow-hidden w-full max-w-full min-w-0">
         <div
           className="absolute -top-20 -right-20 w-60 h-60 bg-[#6B4F3A]/20 rounded-full blur-3xl pointer-events-none"
@@ -133,7 +147,6 @@ export const RoadmapView: React.FC = () => {
             </p>
           </div>
 
-          {/* Switch Career Dropdown & Export PDF */}
           <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap max-w-full">
             <select
               value={career.id}
@@ -174,16 +187,13 @@ export const RoadmapView: React.FC = () => {
           </div>
         </div>
 
-        {/* Milestone Tracker Status Bar */}
         <div className="p-4 rounded-xl bg-[#281D15] border border-[#6B523E] space-y-2.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-[#FAF7F2] font-bold flex items-center gap-1.5">
               <Map className="w-4 h-4 text-[#FAF7F2]" />
               <span>Progress: {activeCompleted.length} of 10 Milestones Completed</span>
             </span>
-            <span className="font-extrabold text-[#FAF7F2]">
-              {progressPercent}%
-            </span>
+            <span className="font-extrabold text-[#FAF7F2]">{progressPercent}%</span>
           </div>
 
           <div className="w-full h-2 bg-[#1E1610] rounded-full overflow-hidden border border-[#6B523E]">
@@ -200,14 +210,59 @@ export const RoadmapView: React.FC = () => {
                 Step {currentActiveStepNumber} · {career.roadmap[currentActiveStepNumber - 1]?.title}
               </strong>
             </span>
-            <span className="text-[#D8C7B0]">
-              {10 - activeCompleted.length} steps remaining
-            </span>
+            <span className="text-[#D8C7B0]">{10 - activeCompleted.length} steps remaining</span>
           </div>
         </div>
       </div>
 
-      {/* Structured Vertical Timeline with Animated Connecting Spine */}
+      <div className="roadmap-section bg-[#231A12] border border-[#6B523E] rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#C9B79C] font-bold">Learning route</p>
+            <h2 className="text-xl font-extrabold text-[#FAF7F2]">Journey Showcase</h2>
+          </div>
+          <div className="rounded-full border border-[#6B523E] bg-[#281D15] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FAF7F2]">
+            Step {activeStep.stepNumber}
+          </div>
+        </div>
+
+        <JourneyShowcase
+          steps={career.roadmap}
+          activeIndex={activeRoadmapIndex}
+          completed={activeCompleted}
+          onSelect={(index) => {
+            setActiveRoadmapIndex(index);
+            setExpandedStep(career.roadmap[index].stepNumber);
+          }}
+        />
+
+        {(() => {
+          const isActiveStepDone = activeCompleted.includes(activeStep.stepNumber);
+          return (
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <p className="text-xs text-[#E2D5C3] font-medium min-w-0">
+                Selected:{' '}
+                <strong className="text-[#FAF7F2]">
+                  Step {activeStep.stepNumber} · {activeStep.title}
+                </strong>
+              </p>
+              <button
+                type="button"
+                onClick={(e) => handleToggleStep(activeStep.stepNumber, e)}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer uiverse-btn flex-shrink-0 ${
+                  isActiveStepDone
+                    ? 'bg-[#281D15] hover:bg-[#382B20] text-[#FAF7F2] border border-[#6B523E]'
+                    : 'bg-[#6B4F3A] hover:bg-[#7E5D45] text-[#FAF7F2] border border-[#C9B79C]/50 shadow-md'
+                }`}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isActiveStepDone ? 'Mark Incomplete' : 'Complete Step'}</span>
+              </button>
+            </div>
+          );
+        })()}
+      </div>
+
       <div className="relative space-y-4">
         {career.roadmap.map((step) => {
           const isCompleted = activeCompleted.includes(step.stepNumber);
@@ -225,13 +280,14 @@ export const RoadmapView: React.FC = () => {
                   : 'border-[#6B523E] hover:border-[#85654B]'
               }`}
             >
-              {/* Step Summary Header */}
               <div
-                onClick={() => setExpandedStep(isExpanded ? null : step.stepNumber)}
+                onClick={() => {
+                  setActiveRoadmapIndex(step.stepNumber - 1);
+                  setExpandedStep(isExpanded ? null : step.stepNumber);
+                }}
                 className="p-5 flex items-start sm:items-center justify-between gap-4 cursor-pointer select-none"
               >
                 <div className="flex items-start sm:items-center gap-3.5">
-                  {/* Step Completion Toggle Button */}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -296,27 +352,20 @@ export const RoadmapView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Expanded Step Details */}
               {isExpanded && (
                 <div className="px-5 pb-5 pt-1 border-t border-[#6B523E] space-y-4 text-xs text-[#E2D5C3]">
                   <p className="text-[#E2D5C3] leading-relaxed text-xs sm:text-sm">
                     {step.description}
                   </p>
 
-                  {/* Milestone Goal Callout */}
                   <div className="p-4 rounded-xl bg-[#281D15] border border-[#6B523E] flex items-start gap-3 shadow-inner">
                     <Target className="w-4 h-4 text-[#FAF7F2] flex-shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold text-[#FAF7F2] block">
-                        Milestone Deliverable
-                      </span>
-                      <span className="text-xs font-semibold text-[#FAF7F2]">
-                        {step.milestoneGoal}
-                      </span>
+                      <span className="font-bold text-[#FAF7F2] block">Milestone Deliverable</span>
+                      <span className="text-xs font-semibold text-[#FAF7F2]">{step.milestoneGoal}</span>
                     </div>
                   </div>
 
-                  {/* Skills & Recommended Tools */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div className="p-3.5 rounded-xl bg-[#281D15] border border-[#6B523E] space-y-2">
                       <span className="font-bold text-[#FAF7F2] flex items-center gap-1.5">
@@ -353,11 +402,8 @@ export const RoadmapView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Action Items Checklist */}
                   <div className="space-y-2 pt-1">
-                    <span className="font-bold text-[#FAF7F2] block">
-                      Key Milestone Tasks
-                    </span>
+                    <span className="font-bold text-[#FAF7F2] block">Key Milestone Tasks</span>
                     <div className="space-y-1.5">
                       {step.actionItems.map((act, actIdx) => (
                         <div
@@ -371,7 +417,6 @@ export const RoadmapView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Step Action Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#6B523E]">
                     <button
                       type="button"
