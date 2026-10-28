@@ -179,3 +179,27 @@ export async function fetchLatestAssessment(
     return { assessment: null, scores: null, error };
   }
 }
+
+export async function deleteUserAssessmentData(
+  userId: string
+): Promise<{ success: boolean; error: Error | null }> {
+  if (!isSupabaseConfigured() || !userId || userId.startsWith('guest-')) {
+    return { success: true, error: null };
+  }
+
+  try {
+    const [delAssessments, delScores] = await Promise.all([
+      supabase.from('assessments').delete().eq('user_id', userId),
+      supabase.from('assessment_scores').delete().eq('user_id', userId),
+    ]);
+
+    if (delAssessments.error) throw delAssessments.error;
+    if (delScores.error) throw delScores.error;
+
+    return { success: true, error: null };
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Failed to reset assessment data');
+    console.warn('Error resetting assessment data in Supabase:', error.message);
+    return { success: false, error };
+  }
+}

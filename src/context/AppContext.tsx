@@ -31,9 +31,18 @@ import {
   fetchLatestAssessment,
   saveAssessmentProgress,
   saveAssessmentScores,
+  deleteUserAssessmentData,
 } from '../services/assessmentService';
-import { fetchRoadmapProgress, saveStepProgress } from '../services/roadmapService';
-import { fetchBookmarks, saveBookmark } from '../services/bookmarkService';
+import {
+  fetchRoadmapProgress,
+  saveStepProgress,
+  deleteUserRoadmapProgress,
+} from '../services/roadmapService';
+import {
+  fetchBookmarks,
+  saveBookmark,
+  deleteUserBookmarks,
+} from '../services/bookmarkService';
 import { saveCareerResults } from '../services/careerService';
 import {
   fetchChatHistory,
@@ -65,9 +74,11 @@ interface AppContextType {
   authLoading: boolean;
   authError: string | null;
   loginWithGoogle: () => Promise<void>;
-  loginAsGuest: (skipOnboarding?: boolean) => void;
+  loginAsGuest: (skipOnboarding?: boolean, forceFresh?: boolean) => void;
   logout: () => Promise<void>;
+  resetDemoState: (options?: { clearCloud?: boolean }) => Promise<void>;
   completeProfileOnboarding: (data: {
+    name?: string;
     educationLevel: string;
     interests: string[];
     targetGoals: string;
@@ -116,7 +127,39 @@ const LS_COMPLETED_STEPS = 'aispire_completed_steps';
 const LS_BOOKMARKS = 'aispire_bookmarks';
 const LS_THEME = 'aispire_theme';
 
+const DEFAULT_WELCOME_MESSAGE: ChatMessage = {
+  id: 'welcome-msg',
+  sender: 'ai',
+  text: 'Hello! I am your AIspire Career Counsellor. I can guide you through career discovery, explain why specific roles match your strengths, and help you work through your 10-step roadmaps. How can I support your journey today?',
+  timestamp: 'Just now',
+  suggestedPrompts: [
+    'Which career fits my aptitude test best?',
+    'How should I prepare for high school/college entrance exams?',
+    'Explain Step 1 of my active roadmap',
+    'How can I improve my communication skills?',
+  ],
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Fresh start URL detection (?reset=true or ?fresh=1 or ?demo=fresh)
+  if (typeof window !== 'undefined') {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (
+        urlParams.get('reset') === 'true' ||
+        urlParams.get('fresh') === '1' ||
+        urlParams.get('fresh') === 'true' ||
+        urlParams.get('demo') === 'fresh'
+      ) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -245,19 +288,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [lastSyncError, setLastSyncError] = useState<string | null>(null);
 
   // Chat State
-  const DEFAULT_WELCOME_MESSAGE: ChatMessage = {
-    id: 'welcome-msg',
-    sender: 'ai',
-    text: 'Hello! I am your AIspire Career Counsellor. I can guide you through career discovery, explain why specific roles match your strengths, and help you work through your 10-step roadmaps. How can I support your journey today?',
-    timestamp: 'Just now',
-    suggestedPrompts: [
-      'Which career fits my aptitude test best?',
-      'How should I prepare for high school/college entrance exams?',
-      'Explain Step 1 of my active roadmap',
-      'How can I improve my communication skills?',
-    ],
-  };
-
   const [isAiChatOpen, setIsAiChatOpenState] = useState(false);
 
   const setIsAiChatOpen = useCallback((open: boolean) => {
@@ -292,7 +322,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               user.user_metadata?.full_name ||
               user.user_metadata?.name ||
               user.email?.split('@')[0] ||
-              'Student',
+              '',
             email: user.email || '',
             avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture,
             educationLevel: '',
@@ -301,6 +331,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             isProfileComplete: false,
           };
           setUserProfile(initialProfile);
+          setAnswers({});
+          setDimensionScores(null);
+          setCurrentQuestionIndexState(0);
+          setCompletedSteps({});
+          setBookmarks([]);
           setCurrentView('onboarding');
           return;
         }
@@ -369,7 +404,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn('Notice loading cloud user data (falling back to local cache):', err);
       setSyncStatus('offline');
       setLastSyncError('Operating in local cache mode');
-      setCurrentView('dashboard');
+
+      const savedProfile = localStorage.getItem(LS_PROFILE);
+      let parsedProfile: UserProfile | null = null;
+      if (savedProfile) {
+        try {
+          parsedProfile = JSON.parse(savedProfile);
+        } catch {
+          parsedProfile = null;
+        }
+      }
+
+      if (parsedProfile && parsedProfile.id === user.id && parsedProfile.isProfileComplete) {
+        setUserProfile(parsedProfile);
+        setCurrentView('dashboard');
+      } else {
+        const freshProfile: UserProfile = {
+          id: user.id,
+          name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split('@')[0] ||
+            '',
+          email: user.email || '',
+          avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+          educationLevel: '',
+          interests: [],
+          targetGoals: '',
+          isProfileComplete: false,
+        };
+        setUserProfile(freshProfile);
+        setCurrentView('onboarding');
+      }
     }
   }, []);
 
@@ -478,32 +544,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Instant Guest / Offline access
-  const loginAsGuest = (skipOnboarding = true) => {
+  const loginAsGuest = (skipOnboarding = false, forceFresh = false) => {
     setAuthError(null);
-    const existing = localStorage.getItem(LS_PROFILE);
-    if (existing) {
+
+    if (forceFresh) {
       try {
-        const parsed = JSON.parse(existing);
-        if (parsed && typeof parsed === 'object') {
-          setUserProfile(parsed);
-          setSyncStatus('offline');
-          setLastSyncError(null);
-          setCurrentView('dashboard');
-          return;
+        localStorage.removeItem(LS_PROFILE);
+        localStorage.removeItem(LS_ANSWERS);
+        localStorage.removeItem(LS_SCORES);
+        localStorage.removeItem(LS_QUESTION_IDX);
+        localStorage.removeItem(LS_COMPLETED_STEPS);
+        localStorage.removeItem(LS_BOOKMARKS);
+        localStorage.removeItem(LS_SELECTED_CAREER_ID);
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.clear();
         }
       } catch {
-        // proceed to create clean guest profile
+        // ignore
+      }
+      setAnswers({});
+      setDimensionScores(null);
+      setCurrentQuestionIndexState(0);
+      setCompletedSteps({});
+      setBookmarks([]);
+      setSelectedCareerId(CAREER_ROLES[0].id);
+      setChatMessages([DEFAULT_WELCOME_MESSAGE]);
+    } else {
+      const existing = localStorage.getItem(LS_PROFILE);
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          if (parsed && typeof parsed === 'object') {
+            setUserProfile(parsed);
+            setSyncStatus('offline');
+            setLastSyncError(null);
+            setCurrentView(parsed.isProfileComplete && skipOnboarding ? 'dashboard' : 'onboarding');
+            return;
+          }
+        } catch {
+          // proceed to create clean guest profile
+        }
       }
     }
 
     const defaultGuest: UserProfile = {
       id: 'guest-' + Math.random().toString(36).substring(2, 9),
-      name: 'Student Explorer',
+      name: '',
       email: 'guest@aispire.local',
-      educationLevel: 'High School / Pre-University (Grade 10-12)',
-      interests: ['Technology', 'Engineering & Robotics', 'Design & Creative Arts'],
-      targetGoals: 'Explore high-demand career paths, aptitude matching, and 10-step roadmaps.',
-      isProfileComplete: skipOnboarding,
+      educationLevel: '',
+      interests: [],
+      targetGoals: '',
+      isProfileComplete: false,
     };
 
     setUserProfile(defaultGuest);
@@ -511,7 +602,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSyncStatus('offline');
     setLastSyncError(null);
 
-    if (skipOnboarding) {
+    if (skipOnboarding && defaultGuest.isProfileComplete) {
       setCurrentView('dashboard');
     } else {
       setCurrentView('onboarding');
@@ -552,19 +643,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Complete profile onboarding
   const completeProfileOnboarding = async (data: {
+    name?: string;
     educationLevel: string;
     interests: string[];
     targetGoals: string;
   }) => {
-    const profileId = authUser?.id || userProfile?.id || 'guest-student';
+    const profileId = authUser?.id || userProfile?.id || 'guest-' + Math.random().toString(36).substring(2, 9);
 
     const updatedProfile: UserProfile = {
       id: profileId,
       name:
-        userProfile?.name ||
+        data.name?.trim() ||
+        userProfile?.name?.trim() ||
         authUser?.user_metadata?.full_name ||
         authUser?.email?.split('@')[0] ||
-        'Student Explorer',
+        'Student',
       email: authUser?.email || userProfile?.email || 'guest@aispire.local',
       avatarUrl: authUser?.user_metadata?.avatar_url || userProfile?.avatarUrl,
       educationLevel: data.educationLevel,
@@ -647,17 +740,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Compute Ranked Careers deterministically
   const rankedCareers = useMemo(() => {
-    const effectiveScores: DimensionScores = dimensionScores || {
-      analytical: 50,
-      creative: 50,
-      technical: 50,
-      socialHealthcare: 50,
-      management: 50,
-      research: 50,
-      communication: 50,
-    };
+    if (!dimensionScores) {
+      return CAREER_ROLES.map((c) => ({
+        ...c,
+        matchScore: undefined,
+        aptitudeMatch: undefined,
+        interestAlignment: undefined,
+        whyThisCareer: undefined,
+        growthArea: undefined,
+      }));
+    }
 
-    return rankCareers(CAREER_ROLES, effectiveScores, userProfile || undefined);
+    return rankCareers(CAREER_ROLES, dimensionScores, userProfile || undefined);
   }, [dimensionScores, userProfile]);
 
   // Submit Assessment with deterministic scores & cloud persistence
@@ -817,6 +911,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     window.location.reload();
   };
 
+  // Complete demo reset action: wipes local storage, session storage, resets React states, and cleans cloud records if authenticated
+  const resetDemoState = useCallback(async (options?: { clearCloud?: boolean }) => {
+    const currentUserId = authUser?.id;
+    if (
+      options?.clearCloud !== false &&
+      currentUserId &&
+      !currentUserId.startsWith('guest-') &&
+      isSupabaseConfigured()
+    ) {
+      try {
+        await Promise.allSettled([
+          deleteUserAssessmentData(currentUserId),
+          deleteUserRoadmapProgress(currentUserId),
+          deleteUserBookmarks(currentUserId),
+          clearChatHistory(currentUserId),
+        ]);
+      } catch (err) {
+        console.warn('Could not reset cloud records in Supabase:', err);
+      }
+    }
+
+    try {
+      await signOutUser();
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.clear();
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.clear();
+      }
+    } catch (e) {
+      console.warn('Storage purge error:', e);
+    }
+
+    setAuthUser(null);
+    setUserProfile(null);
+    setAnswers({});
+    setDimensionScores(null);
+    setCurrentQuestionIndexState(0);
+    setCompletedSteps({});
+    setBookmarks([]);
+    setSelectedCareerId(CAREER_ROLES[0].id);
+    activeChatSessionRef.current = Date.now();
+    setIsAiTyping(false);
+    setChatMessages([DEFAULT_WELCOME_MESSAGE]);
+    setSyncStatus('offline');
+    setLastSyncError(null);
+    setCurrentView('login');
+  }, [authUser]);
+
   // Send AI Mentor chat message with Cloud Persistence
   const sendChatMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -924,6 +1072,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).aispireResetDemo = resetDemoState;
+    }
+  }, [resetDemoState]);
+
   return (
     <AppContext.Provider
       value={{
@@ -955,6 +1109,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         theme,
         setTheme,
         clearLocalCache,
+        resetDemoState,
         isAiChatOpen,
         setIsAiChatOpen,
         chatMessages,

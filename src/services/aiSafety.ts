@@ -15,7 +15,7 @@ export interface SafetyCheckResult {
 
 // Patterns for sexually explicit, pornographic, erotic, or NSFW queries
 const EXPLICIT_SEXUAL_PATTERNS = [
-  /\b(porn|pornography|porno|nsfw|erotic|erotica|hentai|xx{1,3}|nude|nudes|nudity)\b/i,
+  /\b(porn\w*|nsfw|erotic\w*|hentai|xx{1,3}|nude\w*|nudity)\b/i,
   /\b(sex|sexual|sexually|intercourse|copulation|fetish|masturbat\w*|horny|orgasm)\b/i,
   /\b(blowjob|handjob|cum|dick|pussy|vagina|penis|boobs|breasts|clitoris|anal)\b/i,
   /\b(strip club|escort|hooker|prostitut\w*|camgirl|onlyfans)\b/i,

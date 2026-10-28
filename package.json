@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "npx tsx src/services/verify-matcher.ts && npx tsx src/services/verify-security-persistence.ts && npx tsx src/services/verify-pdf-report.ts",
+    "test": "npx tsx src/services/verify-matcher.ts && npx tsx src/services/verify-security-persistence.ts && npx tsx src/services/verify-pdf-report.ts && npx tsx src/services/verify-ai-advisor.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

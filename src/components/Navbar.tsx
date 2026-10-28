@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Compass,
+  RotateCcw,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { AppView } from '../context/AppContext';
@@ -23,6 +24,7 @@ export const Navbar: React.FC = () => {
     setCurrentView,
     userProfile,
     logout,
+    resetDemoState,
     syncStatus,
   } = useApp();
 
@@ -228,6 +230,23 @@ export const Navbar: React.FC = () => {
                   <div className="my-1 border-t border-[#6B523E]" />
 
                   <button
+                    onClick={async () => {
+                      setIsUserMenuOpen(false);
+                      if (
+                        window.confirm(
+                          'Start a fresh demonstration? All saved test answers and roadmap progress will be reset.'
+                        )
+                      ) {
+                        await resetDemoState();
+                      }
+                    }}
+                    className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 text-amber-300 hover:bg-amber-400/10 transition cursor-pointer font-medium"
+                  >
+                    <RotateCcw className="w-4 h-4 text-amber-400" />
+                    <span>Fresh Start (Demo Reset)</span>
+                  </button>
+
+                  <button
                     onClick={() => {
                       setIsUserMenuOpen(false);
                       logout();
@@ -325,7 +344,24 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          <div className="pt-2 border-t border-[#6B523E]">
+          <div className="pt-2 border-t border-[#6B523E] space-y-1">
+            <button
+              onClick={async () => {
+                setIsMobileMenuOpen(false);
+                if (
+                  window.confirm(
+                    'Start a fresh demonstration? All saved test answers and roadmap progress will be reset.'
+                  )
+                ) {
+                  await resetDemoState();
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold text-amber-300 hover:bg-amber-400/10 transition cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4 text-amber-400" />
+              <span>Fresh Start (Demo Reset)</span>
+            </button>
+
             <button
               onClick={() => {
                 setIsMobileMenuOpen(false);

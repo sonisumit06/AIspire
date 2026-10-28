@@ -6,6 +6,7 @@ import {
   Target,
   CheckCircle2,
   ShieldCheck,
+  User,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -22,15 +23,18 @@ const INTEREST_OPTIONS = [
 ];
 
 export const ProfileOnboardingView: React.FC = () => {
-  const { userProfile, completeProfileOnboarding } = useApp();
+  const { userProfile, authUser, completeProfileOnboarding } = useApp();
 
+  const [studentName, setStudentName] = useState(
+    userProfile?.name && userProfile.name !== 'Student Explorer' ? userProfile.name : ''
+  );
   const [educationLevel, setEducationLevel] = useState(
     userProfile?.educationLevel || 'High School (11th-12th Grade)'
   );
   const [selectedInterests, setSelectedInterests] = useState<string[]>(
     userProfile?.interests && userProfile.interests.length > 0
       ? userProfile.interests
-      : ['Artificial Intelligence', 'Software & Web']
+      : []
   );
   const [targetGoals, setTargetGoals] = useState(userProfile?.targetGoals || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +53,7 @@ export const ProfileOnboardingView: React.FC = () => {
 
     try {
       await completeProfileOnboarding({
+        name: studentName.trim() || 'Student',
         educationLevel,
         interests: selectedInterests,
         targetGoals:
@@ -81,10 +86,17 @@ export const ProfileOnboardingView: React.FC = () => {
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Google Account Verified</span>
-          </div>
+          {authUser ? (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Google Account Connected</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6B4F3A]/25 border border-[#C9B79C]/30 text-[#C9B79C] text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-[#C9B79C]" />
+              <span>Student Profile Setup</span>
+            </div>
+          )}
 
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#FAF7F2] tracking-tight">
             Complete Your Student Profile
@@ -98,32 +110,50 @@ export const ProfileOnboardingView: React.FC = () => {
         {/* Form Container */}
         <div className="w-full max-w-full min-w-0 bg-[#231A12] border border-[#6B523E] rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl uiverse-card">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Authenticated Account Info Preview */}
-            <div className="p-4 rounded-2xl bg-[#2B2118] border border-[#6B523E] flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                {userProfile?.avatarUrl ? (
-                  <img
-                    src={userProfile.avatarUrl}
-                    alt={userProfile.name}
-                    className="w-11 h-11 rounded-2xl border border-[#6B523E] object-cover"
-                  />
-                ) : (
-                  <div className="w-11 h-11 rounded-2xl bg-[#6B4F3A]/40 text-[#C9B79C] border border-[#C9B79C]/30 flex items-center justify-center font-bold text-sm">
-                    {userProfile?.name?.charAt(0) || 'U'}
+            {/* Authenticated Account Info Preview if available */}
+            {authUser && (
+              <div className="p-4 rounded-2xl bg-[#2B2118] border border-[#6B523E] flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {userProfile?.avatarUrl ? (
+                    <img
+                      src={userProfile.avatarUrl}
+                      alt={studentName || 'Student'}
+                      className="w-11 h-11 rounded-2xl border border-[#6B523E] object-cover"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-2xl bg-[#6B4F3A]/40 text-[#C9B79C] border border-[#C9B79C]/30 flex items-center justify-center font-bold text-sm">
+                      {studentName?.charAt(0) || userProfile?.name?.charAt(0) || 'U'}
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="font-bold text-sm text-[#FAF7F2]">
+                      {studentName || userProfile?.name || 'Authenticated Student'}
+                    </h4>
+                    <p className="text-xs text-[#E2D5C3]">
+                      {userProfile?.email}
+                    </p>
                   </div>
-                )}
-                <div>
-                  <h4 className="font-bold text-sm text-[#FAF7F2]">
-                    {userProfile?.name || 'Authenticated Student'}
-                  </h4>
-                  <p className="text-xs text-[#E2D5C3]">
-                    {userProfile?.email}
-                  </p>
                 </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-[#6B4F3A]/30 text-[#FAF7F2] border border-[#C9B79C]/40">
+                  Google Sync
+                </span>
               </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-[#6B4F3A]/30 text-[#FAF7F2] border border-[#C9B79C]/40">
-                Connected
-              </span>
+            )}
+
+            {/* Student Name Input */}
+            <div>
+              <label className="block text-xs font-semibold text-[#FAF7F2] mb-1.5 flex items-center gap-1.5">
+                <User className="w-4 h-4 text-[#C9B79C]" />
+                <span>Full Name *</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Enter your name"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                className="w-full px-4 py-2.5 bg-[#2B2118] border border-[#6B523E] rounded-xl text-sm text-[#FAF7F2] placeholder-[#D8C7B0]/60 focus:outline-none focus:border-[#C9B79C] transition"
+              />
             </div>
 
             {/* Education Level Selector */}
@@ -202,3 +232,4 @@ export const ProfileOnboardingView: React.FC = () => {
     </div>
   );
 };
+

@@ -62,3 +62,25 @@ export async function saveBookmark(
     return { success: false, error };
   }
 }
+
+export async function deleteUserBookmarks(
+  userId: string
+): Promise<{ success: boolean; error: Error | null }> {
+  if (!isSupabaseConfigured() || !userId || userId.startsWith('guest-')) {
+    return { success: true, error: null };
+  }
+
+  try {
+    const { error } = await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Failed to reset bookmarks');
+    console.warn('Error resetting bookmarks in Supabase:', error.message);
+    return { success: false, error };
+  }
+}

@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured, supabaseUrl } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
 export async function signInWithGoogle(): Promise<{ error: Error | null }> {
@@ -11,12 +11,11 @@ export async function signInWithGoogle(): Promise<{ error: Error | null }> {
   }
 
   try {
-    // 1. Generate the OAuth authorize URL with skipBrowserRedirect to avoid browser-level DNS crash
+    const redirectTo = typeof window !== 'undefined' ? window.location.origin : undefined;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
-        skipBrowserRedirect: true,
+        redirectTo,
       },
     });
 
@@ -24,44 +23,8 @@ export async function signInWithGoogle(): Promise<{ error: Error | null }> {
       return { error };
     }
 
-    if (!data?.url) {
-      return { error: new Error('Unable to construct Google OAuth authorization URL.') };
-    }
-
-    // 2. Pre-flight probe to verify domain resolution before navigating the browser
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-      // Probe health endpoint. If DNS resolution fails, fetch rejects immediately.
-      await fetch(`${supabaseUrl}/auth/v1/health`, {
-        method: 'GET',
-        signal: controller.signal,
-        mode: 'no-cors',
-      });
-      clearTimeout(timeoutId);
-    } catch {
-      let host = 'your Supabase project';
-      try {
-        host = new URL(supabaseUrl).hostname;
-      } catch {
-        // ignore
-      }
-
-      return {
-        error: new Error(
-          `Unable to connect to Supabase backend (${host}). The domain cannot be resolved (ERR_NAME_NOT_RESOLVED). Please verify VITE_SUPABASE_URL in your .env file, or click "Continue as Guest" to use the platform immediately.`
-        ),
-      };
-    }
-
-    // 3. Domain is active and reachable; navigate to Google OAuth
-    if (typeof window !== 'undefined') {
-      try {
-        window.location.assign(data.url);
-      } catch {
-        window.location.href = data.url;
-      }
+    if (data?.url && typeof window !== 'undefined') {
+      window.location.assign(data.url);
     }
 
     return { error: null };

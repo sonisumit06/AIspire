@@ -14,6 +14,8 @@ import {
   Laptop,
   Database,
   Info,
+  MessageSquare,
+  RotateCcw,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { AppTheme } from '../context/AppContext';
@@ -49,6 +51,7 @@ export const SettingsView: React.FC = () => {
     theme,
     setTheme,
     clearLocalCache,
+    resetDemoState,
     clearChat,
     syncStatus,
     lastSyncError,
@@ -480,6 +483,34 @@ export const SettingsView: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-[#6B523E]">
           <div>
+            <span className="text-xs font-semibold text-amber-300 block">
+              Demonstration Fresh Start (Reset All Data)
+            </span>
+            <span className="text-[11px] text-[#E2D5C3] block">
+              Completely erases all saved assessment answers, cognitive scores, completed roadmap milestones, and chat to demonstrate from a pristine clean slate.
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              if (
+                window.confirm(
+                  'Reset all demonstration data and start completely fresh? This will clear all test answers, roadmap milestones, and sign out.'
+                )
+              ) {
+                await resetDemoState();
+              }
+            }}
+            className="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition flex-shrink-0 cursor-pointer uiverse-btn"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+            <span>Fresh Start Demo Reset</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-[#6B523E]">
+          <div>
             <span className="text-xs font-semibold text-[#FAF7F2] block">
               Sign Out of AIspire
             </span>
@@ -531,6 +562,21 @@ export const SettingsView: React.FC = () => {
               <span className="text-[#E2D5C3]">Zero client keys &amp; encrypted user isolation</span>
             </div>
           </div>
+        </div>
+
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#6B523E]/50">
+          <span className="text-[11px] text-[#E2D5C3]">
+            Help us improve AIspire with your insights and bug reports.
+          </span>
+          <a
+            href={import.meta.env.VITE_FEEDBACK_FORM_URL || "https://forms.gle/YOUR_GOOGLE_FORM_ID"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#6B4F3A] hover:bg-[#7E5D45] text-[#FAF7F2] rounded-xl text-xs font-semibold shadow-md transition cursor-pointer border border-[#C9B79C]/40"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-[#C9B79C]" />
+            <span>Share Feedback / Report an Issue &rarr;</span>
+          </a>
         </div>
       </section>
     </div>

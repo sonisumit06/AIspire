@@ -76,10 +76,10 @@ export const DashboardView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (topCareer?.matchScore && matchScoreRef.current) {
+    if (dimensionScores && topCareer?.matchScore !== undefined && matchScoreRef.current) {
       animateCounter(matchScoreRef.current, topCareer.matchScore, { suffix: '% Match' });
     }
-  }, [topCareer?.matchScore]);
+  }, [dimensionScores, topCareer?.matchScore]);
 
   return (
     <div ref={containerRef} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 min-w-0">
@@ -248,10 +248,14 @@ export const DashboardView: React.FC = () => {
               <Award className="w-4 h-4 text-[#FAF7F2]" />
             </div>
             <div ref={matchScoreRef} className="text-2xl font-extrabold text-[#FAF7F2] truncate">
-              {topCareer ? `${topCareer.matchScore}% Match` : 'Pending'}
+              {dimensionScores && topCareer?.matchScore !== undefined
+                ? `${topCareer.matchScore}% Match`
+                : 'Pending Assessment'}
             </div>
             <p className="text-xs text-[#E2D5C3] font-medium mt-1 truncate">
-              {topCareer ? topCareer.title : 'Take test to unlock'}
+              {dimensionScores && topCareer
+                ? topCareer.title
+                : 'Take 20-question test to unlock matches'}
             </p>
           </div>
 
@@ -262,7 +266,7 @@ export const DashboardView: React.FC = () => {
             }}
             className="text-xs font-bold text-[#FAF7F2] hover:text-[#C9B79C] flex items-center gap-1 transition pt-2 border-t border-[#6B523E] cursor-pointer uiverse-btn"
           >
-            <span>View all 8 recommendations</span>
+            <span>{dimensionScores ? 'View all 8 recommendations' : 'Explore career catalog'}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -376,9 +380,15 @@ export const DashboardView: React.FC = () => {
                       <h3 className="text-sm font-bold text-[#FAF7F2]">
                         {career.title}
                       </h3>
-                      <span className="text-xs font-extrabold px-2.5 py-0.5 rounded bg-[#4A3728] text-[#FAF7F2] border border-[#C9B79C]/40 shadow-xs">
-                        {career.matchScore}% Match
-                      </span>
+                      {career.matchScore !== undefined ? (
+                        <span className="text-xs font-extrabold px-2.5 py-0.5 rounded bg-[#4A3728] text-[#FAF7F2] border border-[#C9B79C]/40 shadow-xs">
+                          {career.matchScore}% Match
+                        </span>
+                      ) : (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#3A2C21] text-[#E2D5C3] border border-[#6B523E]/50">
+                          Assessment Pending
+                        </span>
+                      )}
                       {matchesHighlighted && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#C9B79C]/30 text-[#FAF7F2] border border-[#C9B79C]/50 animate-pulse">
                           High in {highlightedDimension}

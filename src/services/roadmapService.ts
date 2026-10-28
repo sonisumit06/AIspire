@@ -70,3 +70,25 @@ export async function saveStepProgress(
     return { success: false, error };
   }
 }
+
+export async function deleteUserRoadmapProgress(
+  userId: string
+): Promise<{ success: boolean; error: Error | null }> {
+  if (!isSupabaseConfigured() || !userId || userId.startsWith('guest-')) {
+    return { success: true, error: null };
+  }
+
+  try {
+    const { error } = await supabase
+      .from('roadmap_progress')
+      .delete()
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Failed to reset roadmap progress');
+    console.warn('Error resetting roadmap progress in Supabase:', error.message);
+    return { success: false, error };
+  }
+}

@@ -15,7 +15,7 @@ const corsHeaders = {
 };
 
 const EXPLICIT_SEXUAL_PATTERNS = [
-  /\b(porn|pornography|porno|nsfw|erotic|erotica|hentai|xx{1,3}|nude|nudes|nudity)\b/i,
+  /\b(porn\w*|nsfw|erotic\w*|hentai|xx{1,3}|nude\w*|nudity)\b/i,
   /\b(sex|sexual|sexually|intercourse|copulation|fetish|masturbat\w*|horny|orgasm)\b/i,
   /\b(blowjob|handjob|cum|dick|pussy|vagina|penis|boobs|breasts|clitoris|anal)\b/i,
   /\b(strip club|escort|hooker|prostitut\w*|camgirl|onlyfans)\b/i,
@@ -246,11 +246,16 @@ TRUSTED STUDENT CONTEXT:
 - 7D Cognitive Aptitude Profile: ${scoresSummary}
 - ${roadmapContext}
 
+CORE INSTRUCTIONS:
+1. Direct & Relevant Responses First: Always directly, specifically, and thoroughly address the student's question, prompt, or topic of inquiry first. If they ask about a technical concept, coding problem, exam question, study strategy, or career choice, explain it clearly with definitions, concrete examples, or step-by-step breakdowns.
+2. Contextual Enrichment: Connect the topic back to their target career path (${roadmapContext}) and academic goals, but NEVER ignore their specific prompt to recite generic milestones.
+3. Tone & Formatting: Warm, empathetic, encouraging, clear, and structured. Use Markdown formatting (headings, bullet points, bold key terms, and code snippets when relevant) to make responses easy to digest.
+4. Brevity & Actionability: Keep answers focused, structured, empathetic, and actionable.
+
 STRICT SAFETY AND GUIDANCE RULES:
 1. Core Scope: Focus on career roadmaps, syllabus preparation, study techniques, technical and soft skill development, portfolio building, and milestone execution.
 2. Hard Refusal: Under NO circumstances assist with sexually explicit, pornographic, erotic, NSFW, violent, or unsafe queries. If asked, respond strictly with: "${STANDARD_REFUSAL}".
-3. Scope Redirection: If asked for clinical medical diagnoses, formal legal counsel, speculative financial trading, or romantic companionship, politely redirect the student to academic pathways in those fields.
-4. Brevity & Formatting: Keep answers concise (under 250 words), structured with markdown bullet points, empathetic, and actionable.`;
+3. Scope Redirection: If asked for clinical medical diagnoses, formal legal counsel, speculative financial trading, or romantic companionship, politely redirect the student to academic pathways in those fields.`;
 
     // -------------------------------------------------------------------------
     // 7. Call Gemini API with Native Safety Settings (P0 / P1)
@@ -319,7 +324,12 @@ STRICT SAFETY AND GUIDANCE RULES:
       },
     };
 
-    const modelsToTry = ['gemini-3.6-flash', 'gemini-flash-latest'];
+    const modelsToTry = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-2.5-flash-lite',
+    ];
     let geminiRes: Response | null = null;
     let lastErrText = '';
 

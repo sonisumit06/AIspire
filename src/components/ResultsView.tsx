@@ -87,6 +87,97 @@ export const ResultsView: React.FC = () => {
 
   const topStrengths = sortedDimensions.slice(0, 3);
 
+  if (!dimensionScores) {
+    return (
+      <div ref={containerRef} className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 min-w-0">
+        {/* Top Pending Assessment Banner */}
+        <div className="bg-[#231A12] border border-[#6B523E] rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 uiverse-card relative overflow-hidden">
+          <div
+            className="absolute -top-20 -right-20 w-60 h-60 bg-[#6B4F3A]/20 rounded-full blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#4A3728] border border-[#C9B79C]/40 text-[#FAF7F2] text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#C9B79C]" />
+            <span>Assessment Required</span>
+          </div>
+
+          <div className="max-w-xl mx-auto space-y-3">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#FAF7F2] tracking-tight">
+              Unlock Your Cognitive Profile &amp; Career Matches
+            </h1>
+            <p className="text-sm text-[#E2D5C3] leading-relaxed">
+              You haven&apos;t completed the 20-scenario cognitive aptitude assessment yet.
+              Take the test to calculate your personalized 7-dimensional cognitive evaluation and reveal your deterministic career compatibility matches.
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={(e) => {
+                handlePress(e);
+                setCurrentView('test');
+              }}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#6B4F3A] to-[#85654B] hover:from-[#7D5D45] hover:to-[#9B775A] text-[#FAF7F2] font-bold text-sm shadow-xl flex items-center justify-center gap-2 transition cursor-pointer border border-[#C9B79C]/50 uiverse-btn"
+            >
+              <Brain className="w-4 h-4 text-[#FAF7F2]" />
+              <span>Start 20-Question Assessment</span>
+              <ArrowRight className="w-4 h-4 text-[#FAF7F2]" />
+            </button>
+            <button
+              onClick={(e) => {
+                handlePress(e);
+                setCurrentView('dashboard');
+              }}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#2B2118] hover:bg-[#382B20] text-[#E2D5C3] hover:text-[#FAF7F2] font-semibold text-sm border border-[#6B523E] transition cursor-pointer"
+            >
+              <span>Back to Command Center</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Exploratory Career Catalog Preview */}
+        <div className="bg-[#231A12] border border-[#6B523E] rounded-2xl p-6 sm:p-7 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-[#FAF7F2]">
+                Explore Career Pathways (8 High-Demand Roles)
+              </h2>
+              <p className="text-xs text-[#E2D5C3]">
+                Compatibility scores and radar fit unlock after taking the assessment.
+              </p>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded bg-[#3A2C21] text-[#C9B79C] border border-[#6B523E]/50 self-start sm:self-auto">
+              Status: Assessment Pending
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {rankedCareers.map((career) => (
+              <div
+                key={career.id}
+                onClick={() => selectCareer(career, true)}
+                className="p-4 rounded-xl bg-[#281D15] border border-[#6B523E] hover:border-[#85654B] cursor-pointer transition space-y-2 uiverse-card"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-sm text-[#FAF7F2]">{career.title}</h3>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#3A2C21] text-[#E2D5C3] border border-[#6B523E]/50">
+                    Explore Roadmap
+                  </span>
+                </div>
+                <p className="text-xs text-[#E2D5C3] line-clamp-2">{career.description}</p>
+                <div className="flex items-center gap-2 pt-1 text-xs text-[#D8C7B0]">
+                  <span>{career.salaryRange}</span>
+                  <span>•</span>
+                  <span>Growth: {career.growthRate}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 min-w-0">
       {/* Top Banner */}

@@ -12,13 +12,14 @@ import {
   Loader2,
   Compass,
   ArrowRight,
+  RotateCcw,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { isSupabaseConfigured } from '../services/supabase';
 import { animateEntrance } from '../utils/animations';
 
 export const LoginView: React.FC = () => {
-  const { loginWithGoogle, loginAsGuest, authError } = useApp();
+  const { loginWithGoogle, loginAsGuest, authError, resetDemoState } = useApp();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showConfigHelp, setShowConfigHelp] = useState(!isSupabaseConfigured());
@@ -106,7 +107,7 @@ export const LoginView: React.FC = () => {
               <div className="pl-6.5 pt-1">
                 <button
                   type="button"
-                  onClick={() => loginAsGuest(true)}
+                  onClick={() => loginAsGuest(false)}
                   className="inline-flex items-center gap-1.5 text-xs text-cyan-300 hover:text-cyan-200 font-bold underline cursor-pointer"
                 >
                   <Compass className="w-3.5 h-3.5 text-cyan-400" />
@@ -165,7 +166,7 @@ export const LoginView: React.FC = () => {
             {/* Instant Guest Access Button */}
             <button
               type="button"
-              onClick={() => loginAsGuest(true)}
+              onClick={() => loginAsGuest(false)}
               className="uiverse-btn w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#362A1F] to-[#2B2118] hover:from-[#433527] hover:to-[#362A1F] text-[#FAF7F2] font-semibold text-xs sm:text-sm tracking-wide border border-[#6B523E] hover:border-[#C9B79C] shadow-lg flex items-center justify-between transition-all cursor-pointer group"
             >
               <span className="flex items-center gap-2.5">
@@ -173,6 +174,31 @@ export const LoginView: React.FC = () => {
                 <span>Continue as Guest (Instant Access)</span>
               </span>
               <ArrowRight className="w-4 h-4 text-[#C9B79C] group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            {/* Fresh Assessment Demo Launcher */}
+            <button
+              type="button"
+              onClick={() => loginAsGuest(false, true)}
+              className="uiverse-btn w-full py-2.5 px-4 rounded-xl bg-[#2B2118] hover:bg-[#382B20] text-[#E2D5C3] hover:text-[#FAF7F2] font-medium text-xs border border-[#6B523E] hover:border-[#C9B79C] flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Start Fresh Assessment from Question 1</span>
+            </button>
+          </div>
+
+          {/* Quick Demo Reset Trigger */}
+          <div className="pt-1 text-center">
+            <button
+              type="button"
+              onClick={async () => {
+                await resetDemoState();
+                window.location.reload();
+              }}
+              className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold underline inline-flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Erase all saved demo data &amp; clean browser cache</span>
             </button>
           </div>
 

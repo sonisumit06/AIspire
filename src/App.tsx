@@ -102,9 +102,18 @@ const MainContent: React.FC = () => {
             <img src="/logo.png" alt="AIspire" className="w-5 h-5 rounded bg-[#FAF7F2] p-0.5 object-contain shadow-xs border border-[#6B523E]" />
             <span>AIspire • Student Career Guidance Platform</span>
           </div>
-          <p className="text-[11px] text-[#E2D5C3]">
-            Deterministic 7D Cognitive Matching • 10-Step Sequential Roadmaps • Curated Study &amp; Examination Portals
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-[#E2D5C3]">
+            <span>Deterministic 7D Cognitive Matching • 10-Step Sequential Roadmaps • Curated Study &amp; Examination Portals</span>
+            <span className="hidden sm:inline">•</span>
+            <a
+              href={import.meta.env.VITE_FEEDBACK_FORM_URL || "https://forms.gle/YOUR_GOOGLE_FORM_ID"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C9B79C] hover:text-[#FAF7F2] underline underline-offset-4 transition"
+            >
+              Give Beta Feedback
+            </a>
+          </div>
         </footer>
       )}
     </div>

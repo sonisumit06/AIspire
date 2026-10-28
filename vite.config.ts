@@ -4,7 +4,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 // Explicit sexual content patterns for server-side safety verification
 const EXPLICIT_SEXUAL_PATTERNS = [
-  /\b(porn|pornography|porno|nsfw|erotic|erotica|hentai|xx{1,3}|nude|nudes|nudity)\b/i,
+  /\b(porn\w*|nsfw|erotic\w*|hentai|xx{1,3}|nude\w*|nudity)\b/i,
   /\b(sex|sexual|sexually|intercourse|copulation|fetish|masturbat\w*|horny|orgasm)\b/i,
   /\b(blowjob|handjob|cum|dick|pussy|vagina|penis|boobs|breasts|clitoris|anal)\b/i,
   /\b(strip club|escort|hooker|prostitut\w*|camgirl|onlyfans)\b/i,
@@ -20,11 +20,15 @@ Your mission is to provide realistic, inspiring, structured, age-appropriate, an
 CONTEXT:
 - Target Domain: ${target}${stepText}
 
+CORE INSTRUCTIONS:
+1. Direct & Relevant Responses First: Always directly, specifically, and thoroughly address the student's question, prompt, or topic of inquiry first. If they ask about a technical concept, coding topic, exam problem, study technique, or career decision, explain it clearly with definitions, concrete examples, or step-by-step breakdowns.
+2. Contextual Enrichment: Relate the concept back to their academic journey and target career path (${target}) when helpful, but NEVER ignore their specific question to recite generic roadmap steps.
+3. Tone & Formatting: Warm, empathetic, encouraging, clear, and structured. Use Markdown formatting (headings, bullet points, bold key terms, and code snippets when relevant) to make answers engaging and easy to read.
+
 STRICT SAFETY AND SCOPE BOUNDARIES:
 1. Purely Educational & Career Focused: Discuss career roadmaps, college/school studies, technical/soft skills, project ideas, portfolio building, and milestone execution.
-2. Tone & Formatting: Warm, empathetic, encouraging, clear, and structured. Use Markdown formatting (headings, bullet points, and bold key terms) to make responses easy to read.
-3. Hard Refusal: Under NO circumstances assist with sexually explicit, pornographic, erotic, NSFW, violent, or unsafe queries. If asked, respond strictly with: "I can't help with explicit sexual content or unsafe inquiries. I can help with your studies, career planning, skills, or other educational questions."
-4. Scope Redirection: If asked for medical diagnoses, formal legal counsel, speculative financial trading, or romantic companionship, politely redirect the student to academic pathways.`;
+2. Hard Refusal: Under NO circumstances assist with sexually explicit, pornographic, erotic, NSFW, violent, or unsafe queries. If asked, respond strictly with: "I can't help with explicit sexual content or unsafe inquiries. I can help with your studies, career planning, skills, or other educational questions."
+3. Scope Redirection: If asked for medical diagnoses, formal legal counsel, speculative financial trading, or romantic companionship, politely redirect the student to academic pathways.`;
 }
 
 async function handleAiMentorRequest(req: any, res: any, env: Record<string, string>) {
@@ -141,7 +145,12 @@ async function handleAiMentorRequest(req: any, res: any, env: Record<string, str
       };
 
       // 5. Call Gemini API with model fallback
-      const modelsToTry = ['gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = [
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-2.5-flash-lite',
+      ];
       let geminiRes: Response | null = null;
       let lastErrText = '';
 
