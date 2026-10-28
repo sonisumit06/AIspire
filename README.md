@@ -12,18 +12,6 @@
 
 ---
 
-## 🎥 Walkthrough & Demo Video
-
-Watch the complete platform walkthrough demonstrating student onboarding, the 20-question cognitive assessment, dynamic 7D radar visualization, explainable recommendations, 10-step milestone roadmaps, resource discovery, and AI mentoring:
-
-👉 **[Download / Watch Walkthrough Video (AIspire demo.mp4)](./AIspire%20demo.mp4)**
-
-https://github.com/user-attachments/assets/AIspire%20demo.mp4
-
-*Direct link to the video file stored in the repository root: [`./AIspire demo.mp4`](./AIspire%20demo.mp4)*
-
----
-
 ## 📑 Table of Contents
 
 - [Problem Statement & Solution](#-problem-statement--solution)
