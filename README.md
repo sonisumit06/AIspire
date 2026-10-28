@@ -206,56 +206,135 @@ All database tables enforce strict tenant isolation (`auth.uid() = user_id`):
 
 ---
 
-## ⚡ Quickstart Guide for Hackathon Judges & Reviewers
+## ⚡ Quickstart Guide & Setup Instructions
 
 You can run AIspire locally in under **2 minutes**:
 
-### 1. Clone & Install
+### 1. Prerequisites
+- **Node.js**: v18.0.0 or higher (v20+ recommended)
+- **Package Manager**: `npm` (bundled with Node.js), `pnpm`, or `yarn`
+- **Modern Web Browser**: Chrome, Edge, Firefox, or Safari
+
+### 2. Clone & Install
 ```bash
+# Clone the repository
 git clone https://github.com/sonisumit06/AIspire.git
+
+# Enter the project directory
 cd AIspire
+
+# Install dependencies
 npm install
 ```
 
-### 2. Launch Local Dev Server
+---
+
+### 3. Choose Your Execution Mode
+
+AIspire supports **three operational modes** tailored for evaluation, local experimentation, or full production:
+
+#### 🟢 Mode 1: Instant Evaluation / Zero-Configuration Mode (Recommended for Quick Review)
+*No `.env` file or cloud configuration required!*
 ```bash
 npm run dev
 ```
-Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+1. Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+2. On the welcome screen, click **"Continue as Guest (Instant Access)"**.
+3. Fill in your name and interests, take the 20-question cognitive assessment, inspect the dynamic 7D radar visualization, explore 10-step milestone roadmaps & Journey Showcase, and export a multi-page PDF career report.
+4. An intelligent offline heuristic mentor is built-in with zero external setup needed.
 
-> 💡 **Instant Evaluation Tip:** On the welcome screen, click **"Continue as Guest (Instant Access)"**. You can immediately take the 20-question test, inspect the 7D Cognitive Radar, explore the 10-step roadmaps & Journey Showcase, and download a PDF report—no cloud configuration required!
+---
 
-### 3. Optional: Cloud Sync & Edge Function Setup
-To enable Google OAuth and cloud synchronization:
-1. Create a free project at [supabase.com](https://supabase.com).
-2. Execute [`supabase/schema.sql`](supabase/schema.sql) in your Supabase SQL Editor.
-3. Add your Supabase URL and Anon Key in `.env`:
+#### 🟡 Mode 2: Local AI Mentoring with Google Gemini API
+Enable live AI career mentoring directly through Vite's local dev server proxy without exposing your API key to the client browser:
+1. Copy the environment template:
+   ```bash
+   cp .env.example .env
+   ```
+2. Open `.env` and add your Google Gemini API key:
+   ```ini
+   # Server-side dev proxy only — never leaked to the client bundle
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+4. All AI Chat requests to `/api/ai-mentor` are proxied securely to Gemini models (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`) with educational safety guardrails.
+
+---
+
+#### 🔵 Mode 3: Full Production Setup with Supabase Cloud & Google OAuth
+To enable Google OAuth login, PostgreSQL database persistence, and authenticated serverless Edge Functions:
+
+1. **Create a Supabase Project**:
+   - Create a free project at [supabase.com](https://supabase.com).
+   - Retrieve your **Project URL** and **Anon Key** from *Project Settings > API*.
+
+2. **Execute Database Migrations**:
+   - Go to your Supabase Dashboard > **SQL Editor**.
+   - Copy the contents of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
+   - All tables (`profiles`, `assessments`, `assessment_scores`, `career_results`, `roadmap_progress`, `bookmarks`, `ai_chat_history`, `ai_request_log`) and Row-Level Security (RLS) policies will be created automatically.
+
+3. **Configure Google OAuth Provider**:
+   - In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an **OAuth 2.0 Client ID (Web Application)**.
+   - Authorized JavaScript origins: `http://localhost:5173` (and your production domain).
+   - Authorized redirect URI: `https://<your-project-ref>.supabase.co/auth/v1/callback`.
+   - In Supabase Dashboard > **Authentication > Providers > Google**, enable Google, paste your Client ID and Client Secret, and save.
+   - Under **Authentication > URL Configuration**, set Site URL to `http://localhost:5173` (or your production domain).
+
+4. **Update `.env`**:
    ```ini
    VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
+   VITE_SUPABASE_ANON_KEY=your-anon-key-here
+   GEMINI_API_KEY=your-gemini-api-key-here
+   VITE_FEEDBACK_FORM_URL=https://forms.gle/your-feedback-form-id
    ```
-4. Deploy the Edge Function with your Gemini API key:
+
+5. **Deploy the `ai-mentor` Edge Function**:
    ```bash
-   npx supabase secrets set GEMINI_API_KEY=your-key
-   npx supabase functions deploy ai-mentor --no-verify-jwt
+   # Install Supabase CLI if not already installed
+   npm install -g supabase
+
+   # Log in and link your project
+   supabase login
+   supabase link --project-ref your-project-ref
+
+   # Set server-side secret
+   supabase secrets set GEMINI_API_KEY=your-gemini-api-key-here
+
+   # Deploy the edge function
+   supabase functions deploy ai-mentor --no-verify-jwt
    ```
+
+---
+
+### 4. Environment Variables Reference
+
+| Variable | Description | Required? | Exposed to Browser? |
+| :--- | :--- | :---: | :---: |
+| `VITE_SUPABASE_URL` | Supabase project URL (`https://<project>.supabase.co`) | Optional (Mode 3) | Yes (public endpoint) |
+| `VITE_SUPABASE_ANON_KEY` | Supabase public anonymous API key | Optional (Mode 3) | Yes (secured via PostgreSQL RLS) |
+| `GEMINI_API_KEY` | Google Gemini API Key for AI mentoring | Optional (Modes 2 & 3) | **NO** (Server / Edge only) |
+| `VITE_FEEDBACK_FORM_URL` | Optional Google Feedback Form / survey URL | Optional | Yes (public link in Settings & Footer) |
 
 ---
 
 ## 🧪 Automated Verification & Mathematical Proofs
 
-AIspire includes automated test suites verifying mathematical accuracy, safety guards, and PDF rendering:
+AIspire includes **4 comprehensive automated verification test suites** ensuring mathematical precision, security boundaries, PDF generation, and AI mentor relevance:
 
 ```bash
 npm test
 ```
 
-### Verified Test Assertions:
+### Verified Test Assertions (4/4 Suites Passing):
+
 ```text
-🧪 Starting Comprehensive Verification Suite for AIspire Career Matcher...
-✅ Test 1: Empty Answers Dimension Normalization (No NaN)
+🧪 Suite 1: Mathematical Proofs for AIspire Career Matcher
+✅ Test 1: Empty Answers Dimension Normalization (Clamped to 0, No NaN)
 ✅ Test 2: Full 20-Question Mapping & Boundary Clamping
-✅ Test 3: Exact Aptitude Arithmetic Proof
+✅ Test 3: Exact Aptitude Arithmetic Proof (Floating Point Precision)
 ✅ Test 4: Interest Alignment Score Bounds [0, 100]
 ✅ Test 5: Composite 85/15 Formula Verification
 ✅ Test 6: Dynamic Strength Evidence Ranking
@@ -263,26 +342,45 @@ npm test
 ✅ Test 8: Descending FinalMatch Career Sorting
 ✅ Test 9: Boundary Conditions (All 0s & All 100s)
 ✅ Test 10: Graceful Handling of Undefined Profile Data
-🎉 ALL 10 CAREER MATCHER MATHEMATICAL PROOFS PASSED PERFECTLY!
+🎉 ALL 10 CAREER MATCHER MATHEMATICAL PROOFS PASSED!
 
-🛡️ Starting Security, Safety, Rate-Limit & Persistence Verification Suite...
-✅ Test 1: Explicit Adult Content Refusal
+🛡️ Suite 2: Security, Safety, Rate-Limit & Persistence Verification
+✅ Test 1: Explicit Adult Content Refusal (Zero-Tolerance)
 ✅ Test 2: High-Stakes Legal/Medical Scope Redirections
 ✅ Test 3: Zero Client System Instruction Trust
 ✅ Test 4: 3-Second Cooldown & 10 req/min Rate Limiting
-✅ Test 5: Assessment Session Resumption
+✅ Test 5: Assessment Session Resumption Across Renders
 ✅ Test 6: Complete User Data Isolation on Logout
 🎉 ALL SECURITY, SAFETY, RATE-LIMIT & PERSISTENCE TESTS PASSED!
 
-📄 Testing PDF Career Report Generator...
-✅ PDF Career Report generation test passed (4 pages generated)!
+📄 Suite 3: Client-Side PDF Career Report Generator
+✅ PDF Career Report generation test passed (4 pages successfully rendered with tables, radar, and roadmaps)!
+
+🤖 Suite 4: AI Advisor Relevance & Direct-Response Suite
+✅ Test 1: Recursion Concept Query (Direct explanation with base cases)
+✅ Test 2: Python Technology Query (Core language role in AI/ML ecosystems)
+✅ Test 3: Study Techniques Query (Active recall & spaced repetition strategies)
+✅ Test 4: Resume & Career Query (STAR method & portfolio building)
+✅ Test 5: Linear Algebra Math Query (Vectors, matrices, and transformations in ML)
+✅ Test 6: Data Structure Query (Array memory layouts and access complexities)
+✅ Test 7: General Science Query (Foundational concepts explained clearly)
+✅ Test 8: Greeting Query (Welcoming student persona initialization)
+✅ Test 9: Explicit Safety Refusal (Enforces safe educational boundaries)
+🎉 ALL AI ADVISOR RELEVANCE TESTS PASSED SUCCESSFULLY!
 ```
 
-### Production Build Verification
+### Static Analysis & Production Build
 ```bash
+# Type-check with TypeScript compiler
+npx tsc -b
+
+# High-speed static analysis with Oxlint
+npm run lint
+
+# Production Vite build
 npm run build
 ```
-*Compiles with zero TypeScript errors or linter warnings.*
+*Compiles in ~1.3s with zero TypeScript errors.*
 
 ---
 
@@ -290,7 +388,7 @@ npm run build
 
 ```
 AIspire/
-├── AIspire demo.mp4             # Full platform walkthrough video
+├── AIspire demo.mp4             # Full platform walkthrough demo video
 ├── .env.example                 # Environment variable template
 ├── .gitignore                   # Excludes node_modules, dist, and secrets
 ├── LICENSE                      # MIT Open Source License
@@ -300,15 +398,21 @@ AIspire/
 ├── PRIVACY.md                   # Student privacy policies
 ├── TERMS.md                     # Platform terms of service
 ├── index.html                   # Application HTML shell
-├── package.json                 # Dependency specifications & scripts
+├── package.json                 # Dependency specifications & verification scripts
 ├── tsconfig.json                # TypeScript compiler configuration
-├── vite.config.ts               # Vite configuration
+├── vite.config.ts               # Vite configuration with built-in AI dev proxy
 │
 ├── docs/                        # In-depth engineering specifications
 │   ├── architecture.md          # Comprehensive architectural specs
 │   ├── security.md              # Threat model & safety thresholds
 │   ├── database.md              # PostgreSQL schema & RLS policies
-│   └── deployment.md            # Production deployment guide
+│   ├── deployment.md            # Production deployment & operations guide
+│   ├── career-matching.md       # Mathematical formulas and weighting logic
+│   ├── ai-safety.md             # AI boundary enforcement & prompt guards
+│   └── feedback-form.md         # Beta survey guide & 16-question specification
+│
+├── scripts/                     # Operational automation scripts
+│   └── create-feedback-form.gs  # Google Apps Script for 1-click feedback form generation
 │
 ├── Logo/                        # Official high-resolution brand assets
 ├── public/                      # Static web assets & favicons
@@ -319,16 +423,16 @@ AIspire/
 │   ├── App.css                  # Semantic design tokens & responsive styles
 │   │
 │   ├── components/              # Modular UI view components
-│   │   ├── Navbar.tsx           # Global navigation with cloud sync status
+│   │   ├── Navbar.tsx           # Global navigation, demo reset & sync status
 │   │   ├── LoginView.tsx        # Authentication & instant guest access
-│   │   ├── ProfileOnboardingView.tsx # Student background & aspirations
+│   │   ├── ProfileOnboardingView.tsx # Student background, name & aspirations
 │   │   ├── DashboardView.tsx    # Command center & next milestone highlight
 │   │   ├── AptitudeTestView.tsx # 20-question cognitive assessment
 │   │   ├── ResultsView.tsx      # Explainable match breakdown & growth areas
 │   │   ├── RoadmapView.tsx      # 10-step career progression tracker
 │   │   ├── JourneyShowcase.tsx  # Animated visual learning route showcase
 │   │   ├── ResourcesView.tsx    # Curated study links & exam prep hub
-│   │   ├── SettingsView.tsx     # Theme, account, sync status & safety info
+│   │   ├── SettingsView.tsx     # Theme, account, data reset & safety info
 │   │   ├── AIChatDrawer.tsx     # Sliding contextual AI mentor chat drawer
 │   │   ├── InteractiveRadarSignature.tsx # Animated SVG 7D cognitive radar
 │   │   ├── InteractiveParticles.tsx # Ambient physics-based canvas background
@@ -339,13 +443,19 @@ AIspire/
 │   │
 │   ├── services/                # Business logic, math & cloud services
 │   │   ├── careerMatcher.ts     # Deterministic 7D scoring & ranking math
-│   │   ├── geminiService.ts     # Client invoker for Edge Function
+│   │   ├── geminiService.ts     # Client invoker for Edge Function & local proxy
 │   │   ├── pdfReportService.ts  # Multi-page PDF career dossier generator
-│   │   ├── authService.ts       # Supabase OAuth with connection pre-flight
+│   │   ├── authService.ts       # Supabase Google OAuth provider integration
 │   │   ├── chatService.ts       # Chat persistence & session invalidation
-│   │   ├── assessmentService.ts # Assessment state resumption
+│   │   ├── assessmentService.ts # Assessment state resumption & reset logic
 │   │   ├── roadmapService.ts    # Milestone progress tracking
-│   │   └── bookmarkService.ts   # Resource bookmark persistence
+│   │   ├── bookmarkService.ts   # Resource bookmark persistence
+│   │   ├── supabase.ts          # Sanitized Supabase client initialization
+│   │   │
+│   │   ├── verify-matcher.ts    # Suite 1: Mathematical proofs verification
+│   │   ├── verify-security-persistence.ts # Suite 2: Security & persistence verification
+│   │   ├── verify-pdf-report.ts # Suite 3: PDF report generation verification
+│   │   └── verify-ai-advisor.ts # Suite 4: AI advisor relevance verification
 │   │
 │   ├── data/                    # Educational seed data
 │   │   ├── questions.ts         # 20 scenario-based aptitude questions
